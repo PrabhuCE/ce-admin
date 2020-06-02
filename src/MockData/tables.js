@@ -1,4 +1,4 @@
-export const tables = [
+export const MA_tables = [
   { id: 191, table_name: "User" },
   { id: 191, table_name: "Course Details" },
   { id: 192, table_name: "Assignment Info" },
@@ -11,10 +11,19 @@ export const tables = [
   { id: 199, table_name: "User Tracking Details" },
 ];
 
-export const table_info = {
+export const PREP_tables = [
+  { id: 191, table_name: "User" },
+  { id: 191, table_name: "Upload Details" },
+  { id: 192, table_name: "Previous Request Info" },
+  { id: 193, table_name: "Tracking Info" }
+];
+
+export const MA1_table_info = {
   column_list: [
-    { label: "ID", has_order: true, has_filter: true, col_type: "text" },
-    { label: "ID", has_order: true, has_filter: true, col_type: "text" },
+    { label: "ID", has_order: false, has_filter: false, col_type: "text" },
+    { label: "FirstName", has_order: true, has_filter: true, col_type: "text" },
+    { label: "LastName", has_order: true, has_filter: true, col_type: "text" },
+    { label: "CourseId", has_order: true, has_filter: true, col_type: "text" },
   ],
   data: [
     {
@@ -50,7 +59,7 @@ export const table_info = {
   ],
 };
 
-export const table_data = [
+export const MA2_table_info = [
   {
     id: 1,
     first_name: "sdssd",
@@ -83,7 +92,7 @@ export const table_data = [
   },
 ];
 
-export const table_data1 = [
+export const MA3_table_info = [
   {
     id: 1,
     first_name: "sdssd",

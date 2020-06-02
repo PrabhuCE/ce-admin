@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import clsx from 'clsx';
 import Card from '@material-ui/core/Card';
@@ -25,77 +25,70 @@ import { style } from '../../Styles/theme';
 export default function AppList(props) {
     const classes = useStyles();
 
+    useEffect(() => {
+        localStorage.removeItem('product', '')
+    }, [])
 
-    const proceedToLogin = () => {
-        props.history.push('/tenantlogin');
+
+    const proceedToLogin = (selProduct) => {
+        localStorage.setItem('product', selProduct);
+        props.history.push(`/tenantlogin?product=${selProduct}`);
+        window.location.reload(false)
     };
 
     return (
-        <div className={classes.appsContainer}>
+        <React.Fragment>
             <Header />
-            <Grid container spacing={1}>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Card className={classes.root} onClick={() => { proceedToLogin() }}>
-                        <CardHeader
-                            avatar={
-                                <Avatar aria-label="recipe" className={classes.avatar}>
-                                    MA
+            <div className={classes.appsContainer}>
+                <Grid container spacing={1}>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Card className={classes.root} onClick={() => { proceedToLogin('MyAthina') }}>
+                            <CardHeader
+                                avatar={
+                                    <Avatar aria-label="recipe" className={classes.avatar}>
+                                        MA
                                 </Avatar>
-                            }
-                            action={
-                                <IconButton aria-label="settings">
-                                    <MoreVertIcon />
-                                </IconButton>
-                            }
-                            title="My Athina"
-                        />
-                        <CardContent>
-                            <img height="90px" width="240px" src={AthinaLogo}></img>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Card className={classes.root} onClick={() => { proceedToLogin() }}>
-                        <CardHeader
-                            avatar={
-                                <Avatar aria-label="recipe" className={classes.avatar}>
-                                    PR
+                                }
+                                title={<div className={classes.cardTitle}>My Athina</div>}
+                            />
+                            <CardContent>
+                                <img height="90px" width="240px" src={AthinaLogo}></img>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Card className={classes.root} onClick={() => { proceedToLogin('PREP') }}>
+                            <CardHeader
+                                avatar={
+                                    <Avatar aria-label="recipe" className={classes.avatar}>
+                                        PR
                                 </Avatar>
-                            }
-                            action={
-                                <IconButton aria-label="settings">
-                                    <MoreVertIcon />
-                                </IconButton>
-                            }
-                            title="PREP"
-                        />
-                        <CardContent>
-                            <img height="90px" width="240px" src={PrepLogo}></img>
-                        </CardContent>
-                    </Card>
-                </Grid>
-                <Grid item xs={12} sm={12} md={4} lg={4}>
-                    <Card className={classes.root} onClick={() => { proceedToLogin() }}>
-                        <CardHeader
-                            avatar={
-                                <Avatar aria-label="recipe" className={classes.avatar}>
-                                    TV
+                                }
+                                title={<div className={classes.cardTitle}>PREP</div>}
+                            />
+                            <CardContent>
+                                <img height="90px" width="240px" src={PrepLogo}></img>
+                            </CardContent>
+                        </Card>
+                    </Grid>
+                    <Grid item xs={12} sm={12} md={4} lg={4}>
+                        <Card className={classes.root} onClick={() => { proceedToLogin('TableVision') }}>
+                            <CardHeader
+                                avatar={
+                                    <Avatar aria-label="recipe" className={classes.avatar}>
+                                        TV
                                 </Avatar>
-                            }
-                            action={
-                                <IconButton aria-label="settings">
-                                    <MoreVertIcon />
-                                </IconButton>
-                            }
-                            title="Table Vision"
-                        />
-                        <CardContent>
-                            <img height="90px" width="240px" src={TVlogo}></img>
-                        </CardContent>
-                    </Card>
+                                }
+                                title={<div className={classes.cardTitle}>Table Vision</div>}
+                            />
+                            <CardContent>
+                                <img height="90px" width="240px" src={TVlogo}></img>
+                            </CardContent>
+                        </Card>
+                    </Grid>
                 </Grid>
-            </Grid>
-        </div>
+            </div>
+        </React.Fragment>
     );
 }
 
@@ -103,13 +96,20 @@ export default function AppList(props) {
 const useStyles = makeStyles((theme) => ({
     root: {
         maxWidth: 345,
+        cursor: 'pointer'
+    },
+    cardTitle: {
+        fontSize: '1.2rem',
+        textAlign: 'start',
+        color: style.fontColour._blue
     },
     media: {
         height: "120px",
         width: '400px',
     },
     appsContainer: {
-        marginTop: '4rem'
+        margin: '5rem 3rem 3rem 3rem'
+
     },
     avatar: {
         backgroundColor: style.fontColour._blue,

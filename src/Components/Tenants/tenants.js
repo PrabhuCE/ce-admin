@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
@@ -11,13 +11,14 @@ import AthinaLogo from "../../Static/myAthinaLogo.png";
 import PrepLogo from "../../Static/preplogo.svg";
 import TVlogo from "../../Static/tv_logo.svg";
 
+
 export default function Tenants(props) {
   const classes = useStyles();
-  const [tenant, setTenant] = React.useState("");
-  const [selectedTenantId, setSelectedTenantId] = React.useState("mdb-050520");
+  const [tenants, setTenants] = useState(props.tenants);
+  const [selectedTenantId, setSelectedTenantId] = useState("");
 
   const handleChange = (event) => {
-    setTenant(event.target.value);
+    setSelectedTenantId(event.target.value);
   };
 
   const proceedToDashboard = () => {
@@ -25,41 +26,40 @@ export default function Tenants(props) {
   };
 
   return (
-    <Card className={classes.card} variant="outlined">
-      <CardContent>
-        <br /> <br />
-        <div>Choose Tenant</div>
-        <FormControl variant="outlined" className={classes.formControl}>
-          <InputLabel id="demo-simple-select-outlined-label">
-            Teanant
+    <div>
+      <div>Choose Tenant</div>
+      <FormControl variant="outlined" className={classes.formControl}>
+        <InputLabel id="demo-simple-select-outlined-label">
+          Tenant
           </InputLabel>
-          <Select
-            labelId="demo-simple-select-outlined-label"
-            id="demo-simple-select-outlined"
-            value={tenant}
-            onChange={handleChange}
-            label="Tenant"
-          >
-            <MenuItem value="">
-              <em>None</em>
-            </MenuItem>
-            <MenuItem value={1}>AnsrSource-B2B</MenuItem>
-            <MenuItem value={2}>Myathina-B2C</MenuItem>
-            <MenuItem value={3}>ABC University-B2B</MenuItem>
-          </Select>
-        </FormControl>
-        <div className={classes.buttonContainer}>
-          <Button
-            variant="outlined"
-            onClick={() => {
-              proceedToDashboard();
-            }}
-          >
-            Proceed
+        <Select
+          labelId="demo-simple-select-outlined-label"
+          id="demo-simple-select-outlined"
+          value={selectedTenantId}
+          onChange={handleChange}
+          label="Tenant"
+        >
+          <MenuItem value="">
+            <em>None</em>
+          </MenuItem>
+          {tenants.map((item, index) => {
+            return (
+              <MenuItem key={index} value={item.tenant_id}>{item.name}</MenuItem>
+            )
+          })}
+        </Select>
+      </FormControl>
+      <div className={classes.buttonContainer}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            proceedToDashboard();
+          }}
+        >
+          Proceed
           </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 

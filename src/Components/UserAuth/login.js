@@ -11,15 +11,13 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { NavLink, withRouter } from "react-router-dom";
-// import { connect } from 'react-redux';
-// import { apiConfig } from '../../Configs/apiConfigs';
+//import { connect } from 'react-redux';
+import { apiConfig } from '../../Configs/apiConfigs';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Logo from '../../Static/logo.png';
 // import { showSnackBar } from '../../store/AlertMessages/actionCreator';
-// import { doLogin } from '../../store/Login/actionCreator';
-// import { googleSignIn } from '../../Helpers/googleSignIn';
-// import { generateJwtToken } from '../../Helpers/constants';
-// import GoogleIcon from '../../Static/Images/google.png'
+import { login } from '../../Store/Login/actionCreator';
+import { generateJwtToken } from '../../Helpers/basics';
 
 
 export default function Login(props) {
@@ -36,63 +34,54 @@ export default function Login(props) {
 
     const doSignIn = (event) => {
         event.preventDefault();
-        // setDisplayProgress(true);
-        // setBtnDisabled(true);
-        // const userName = document.getElementById('username').value;
-        // const password = document.getElementById('password').value;
-        // let isValid;
-        // if (userName !== '' && password !== '') {
-        //     isValid = validateEmail(userName);
-        //     if (isValid) {
-        //         let loginCredentials = {}
-        //         loginCredentials.username = userName;
-        //         loginCredentials.password = password;
-
-        //     } else {
-        //         props.showSnackBar(
-        //             {
-        //                 state: true,
-        //                 message: 'Username Not Valid!',
-        //                 type: 'error'
-        //             }
-        //         )
-        //         setDisplayProgress(false);
-        //         setBtnDisabled(false);
-        //     }
-
-
-        // } else {
-        //     props.showSnackBar(
-        //         {
-        //             state: true,
-        //             message: 'Credentials cannot be Empty!',
-        //             type: 'error'
-        //         }
-        //     )
-        //     setDisplayProgress(false);
-        //     setBtnDisabled(false);
-        // }
+        setDisplayProgress(true);
+        setBtnDisabled(true);
+        const userName = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        let isValid;
+        if (userName !== '' && password !== '') {
+            isValid = validateEmail(userName);
+            if (isValid) {
+                let loginCredentials = {}
+                loginCredentials.username = userName;
+                loginCredentials.password = password;
+                login(loginCredentials, successCallBack, failureCallBack)
+            } else {
+                //props.showSnackBar(
+                //     {
+                //         state: true,
+                //         message: 'Username Not Valid!',
+                //         type: 'error'
+                //     }
+                // )
+                setDisplayProgress(false);
+                setBtnDisabled(false);
+            }
+        } else {
+            // props.showSnackBar(
+            //     {
+            //         state: true,
+            //         message: 'Credentials cannot be Empty!',
+            //         type: 'error'
+            //     }
+            // )
+            setDisplayProgress(false);
+            setBtnDisabled(false);
+        }
         props.history.replace('/apps');
     }
 
     const successCallBack = (res) => {
         // var userToken = generateJwtToken(res.user)
-        // localStorage.setItem('tv_user', userToken);
-        // localStorage.setItem('tv_token', res.token);
+        // localStorage.setItem('ce_user', userToken);
+        // localStorage.setItem('ce_token', res.token);
         // setDisplayProgress(false);
-        // props.history.replace('/dashboard');
+        props.history.replace('/apps');
     }
 
     const failureCallBack = () => {
-        // props.showSnackBar(
-        //     {
-        //         state: true,
-        //         message: 'Login Failed.Please Check Your Credentials!',
-        //         type: 'error'
-        //     }
-        // )
-        // setDisplayProgress(false);
-        // setBtnDisabled(false);
+        setDisplayProgress(false);
+        setBtnDisabled(false);
     }
 
     return (

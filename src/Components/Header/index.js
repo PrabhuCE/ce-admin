@@ -15,6 +15,7 @@ import ListItem from '@material-ui/core/ListItem';
 import IconButton from '@material-ui/core/IconButton';
 import { style } from '../../Styles/theme';
 import { Link } from 'react-router-dom';
+import { getLoggedInStatus } from '../../Helpers/basics'
 import Logo from '../../Static/logo.png';
 
 export default function Header(props) {
@@ -22,15 +23,15 @@ export default function Header(props) {
     const matches = useMediaQuery('(max-width:600px)');
 
     return (
-        <div style={style.root}>
+        <div className={classes.root}>
             <AppBar
                 className={classes.appBar}
             >
                 <div>
                     {matches === true ?
-                        <div>
-                            <Grid container spacing={2}>
-                                <Grid item xs={6} sm={6}>
+                        <div >
+                            <Grid container spacing={2} style={{ backgroundColor: '#f0f8ff' }} >
+                                <Grid item xs={6} sm={6} >
                                     <img src={Logo} style={{ height: "40px", width: "140px", marginRight: "15px" }} alt="client.myathina logo" />
                                 </Grid>
                                 <Grid item xs={6} sm={6}>
@@ -56,7 +57,7 @@ export default function Header(props) {
                                 </div>
                             </Grid>
                             <Grid item xs={2} sm={2} md={9} lg={9}>
-                                <div className={classes.sectionDesktop}>
+                                {getLoggedInStatus() && <div className={classes.sectionDesktop}>
                                     <div style={{ display: "flex" }}>
                                         <React.Fragment>
                                             <Avatar style={{ "alignSelf": "end", backgroundColor: '#205f9d', textTransform: 'uppercase' }} >US</Avatar>
@@ -65,7 +66,7 @@ export default function Header(props) {
                                             </IconButton>
                                         </React.Fragment>
                                     </div>
-                                </div>
+                                </div>}
                             </Grid>
                         </Grid>
                     }
@@ -74,7 +75,7 @@ export default function Header(props) {
 
             </AppBar>
 
-            <Popover
+            {/* <Popover
                 anchorOrigin={{
                     vertical: 'bottom',
                     horizontal: 'left',
@@ -98,7 +99,7 @@ export default function Header(props) {
                         </IconButton>
                     </ListItem>
                 </List>
-            </Popover>
+            </Popover> */}
         </div>
     );
 }
@@ -110,7 +111,7 @@ const useStyles = makeStyles(theme => ({
             //zIndex: 1,
         }),
         "box-shadow": "none",
-        "backgroundColor": "#FFF",
+        "backgroundColor": "#f0f8ff",
         "color": "#3f51b5",
         "border": "none"
     },

@@ -1,4 +1,5 @@
 import React, { Component, useEffect } from "react";
+import { PrivateRoute, SelectedRoute } from '../../router';
 import Login from "../UserAuth/login";
 import AppList from "../Apps";
 import Try from "./try";
@@ -12,14 +13,13 @@ function Layout(props) {
     <Router>
       <Switch>
         <Route exact={true} path="/" component={Login} />
-        <Route
+        <Route path="/apps" history={props.history} component={AppList} />
+        <SelectedRoute
           path="/tenantlogin"
           history={props.history}
           component={TenantLogin}
         />
-        <Route path="/tenants" history={props.history} component={Tenants} />
-        <Route path="/apps" history={props.history} component={AppList} />
-        <Route
+        <SelectedRoute
           path="/:tenantId/home"
           history={props.history}
           component={Home}
