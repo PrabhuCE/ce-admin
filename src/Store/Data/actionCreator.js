@@ -3,7 +3,6 @@ import { apiConfig } from '../../Configs/apiConfigs';
 
 export const getTablesList = (payload, successCallBack, failureCallBack) => {
     const url = `${apiConfig.getTables.fetchTablesList}`
-    console.log("url================", url);
     let header = { headers: { 'Authorization': 'Token ' + localStorage.getItem('ce_admin_token') } };
     axios.post(url,
         payload,
@@ -20,7 +19,6 @@ export const getTablesList = (payload, successCallBack, failureCallBack) => {
 
 export const getTableData = (payload, successCallBack, failureCallBack) => {
     const url = `${apiConfig.getTables.fetchTableData}`
-    console.log("url================", url);
     let header = { headers: { 'Authorization': 'Token ' + localStorage.getItem('ce_admin_token') } };
     axios.post(url, payload,
         header)

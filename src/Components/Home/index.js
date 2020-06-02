@@ -25,19 +25,18 @@ export default function Home(props) {
   const [tablesList, setTablesList] = useState([]);
   const [tableData, setTableData] = useState([]);
   const [columnsList, setColumnsList] = useState([]);
-  const [page, setPage] = useState(3);
+  const [page, setPage] = useState(0);
+  const [offset, setOffset] = useState(0);
+  const [totalRecCount, setTotalRecCount] = useState(0);
+  const [tableCode, setTableCode] = useState();
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (event) => {
-    setRowsPerPage(parseInt(event.target.value, 10));
-    setPage(0);
+    setOffset(newPage * rowsPerPage);
+    fetchTableData(tableCode)
   };
 
   useEffect(() => {
-    console.log(props.match);
     fetchTableList();
   }, [])
 
@@ -51,24 +50,27 @@ export default function Home(props) {
 
   const successCB = (res) => {
     setTablesList(res.results)
+
   }
 
   const failureCB = (error) => {
 
   }
 
-  const fetchTableData = (item) => {
-
-
+  const fetchTableData = (code) => {
+    setTableCode(code);
     let payload = {
-      table_id: item,
-      tenant_id: props.match.params.tenantId
+      table_id: code,
+      tenant_id: props.match.params.tenantId,
+      offset: offset,
+      limit: 10
     }
     getTableData(payload, successCallBack, failureCallBack)
   }
 
   const successCallBack = (res) => {
     setTableData(res.results.data)
+    setTotalRecCount(res.results.total_count)
     setColumnsList(res.results.column_list)
   }
 
@@ -85,28 +87,28 @@ export default function Home(props) {
             <TableHead>
               <TableRow className={classes.thead}>
                 {columnsList.length > 0 && columnsList.map((item, index) => (
-                  <TableCell align="center">{item.label}</TableCell>
+                  <TableCell key={index} align="center">{item.label}</TableCell>
                 ))}
               </TableRow>
             </TableHead>
             <TableBody>
-              {tableData.map((row, index) => (
+              {tableData.length > 0 && tableData.map((row, index) => (
                 <TableRow key={index}>
                   {columnsList.length > 0 && columnsList.map((cell, index) => (
-                    <TableCell align="center">{row[cell.col_name]}</TableCell>
+                    <TableCell key={index} align="center">{row[cell.col_name]}</TableCell>
                   ))}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
-        <TablePagination
+        {tableData.length > 0 && <TablePagination
           component="div"
-          count={tableData.length}
+          count={totalRecCount}
           rowsPerPage={10}
           page={page}
-        // onChangePage={handleChangePage}
-        />
+          onChangePage={handleChangePage}
+        />}
       </React.Fragment>
     );
   };
@@ -133,7 +135,7 @@ export default function Home(props) {
           </Paper>
         </Grid>
         <Grid item xs={12} sm={12} md={10} lg={10}>
-          {renderTable()}
+          {tableData.length > 0 && renderTable()}
         </Grid>
       </Grid>
     </div>
