@@ -32,8 +32,9 @@ export default function Home(props) {
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
-    setOffset(newPage * rowsPerPage);
-    fetchTableData(tableCode)
+    let l = newPage * rowsPerPage;
+    setOffset(l);
+    fetchTableData(tableCode, l)
   };
 
   useEffect(() => {
@@ -57,12 +58,18 @@ export default function Home(props) {
 
   }
 
-  const fetchTableData = (code) => {
+  const handleTableClick = (code) => {
     setTableCode(code);
+    setPage(0);
+    setOffset(0);
+    fetchTableData(code, 0);
+  }
+
+  const fetchTableData = (code, offsetVal) => {
     let payload = {
       table_id: code,
       tenant_id: props.match.params.tenantId,
-      offset: offset,
+      offset: offsetVal,
       limit: 10
     }
     getTableData(payload, successCallBack, failureCallBack)
@@ -125,7 +132,7 @@ export default function Home(props) {
                 <List component="nav" aria-label="main mailbox folders">
                   {tablesList.map((item, index) => {
                     return (
-                      <ListItem key={index} button onClick={() => { fetchTableData(item.code) }}>
+                      <ListItem key={index} className={tableCode === item.code ? classes.activeTablesList : classes.tablesList} button onClick={() => { handleTableClick(item.code) }}>
                         <ListItemText primary={item.table_name} />
                       </ListItem>
                     );
@@ -149,4 +156,7 @@ const useStyles = makeStyles((theme) => ({
   thead: {
     background: "#ebebeb",
   },
+  activeTablesList: {
+    backgroundColor: '#f0f8fe'
+  }
 }));
