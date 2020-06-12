@@ -15,6 +15,7 @@ import StarBorder from '@material-ui/icons/StarBorder';
 import Grid from '@material-ui/core/Grid';
 import TableList from '../Tables';
 import Header from '../Header';
+
 import { findRenderedComponentWithType } from 'react-dom/test-utils';
 
 
@@ -27,8 +28,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function Home(props) {
-    console.log(props)
+
     const classes = useStyles()
+
     const [open, setOpen] = React.useState(true);
     const [selComponent, setSelectedComponent] = React.useState(true);
 

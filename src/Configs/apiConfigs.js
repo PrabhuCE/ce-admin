@@ -36,6 +36,10 @@ export const apiConfig = {
     },
     getTables: {
         fetchTablesList: `${product_domain}ceadmin/component/`,
-        fetchTableData: `${product_domain}ceadmin/component/data/`
+        fetchTableData: `${product_domain}ceadmin/component/data/`,
+
+    },
+    tenants: {
+        getTenants: `${product_domain}ceadmin/component/tenants/`
     }
 }
