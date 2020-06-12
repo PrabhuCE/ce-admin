@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
+import PropTypes from "prop-types";
 import List from "@material-ui/core/List";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -7,16 +8,21 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
+import OutlinedInput from "@material-ui/core/OutlinedInput";
 import ImageIcon from "@material-ui/icons/Image";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
-
+import TableSortLabel from "@material-ui/core/TableSortLabel";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-
+import TextField from "@material-ui/core/TextField";
+import SearchIcon from "@material-ui/icons/Search";
+import InputAdornment from "@material-ui/core/InputAdornment";
+import IconButton from "@material-ui/core/IconButton";
+import Input from "@material-ui/core/Input";
 import Table from "@material-ui/core/Table";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -50,15 +56,87 @@ export default function Tables(props) {
   const [open, setOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState("");
   const [tenantsList, setTenantsList] = useState([]);
+  const [order, setOrder] = useState("asc");
+  const [orderBy, setOrderBy] = useState();
+  const [searchValue, setSearchValue] = useState();
+
+  const handleSearchChange = (event) => {
+    setSearchValue(event.target.value);
+  };
+
+  const handleClickSearch = (event) => {};
 
   const [selectedTenantId, setSelectedTenantId] = useState(
     props.history.match.params.tenantId
   );
 
+  // function EnhancedTableHead(props) {
+  //   const {
+  //     classes,
+  //     onSelectAllClick,
+  //     order,
+  //     orderBy,
+  //     numSelected,
+  //     rowCount,
+  //     onRequestSort,
+  //   } = props;
+
+  //   const createSortHandler = (property) => (event) => {
+  //     onRequestSort(event, property);
+  //   };
+
+  //   return (
+  //     <TableHead>
+  //       <TableRow>
+  //         {columnsList.map((headCell) => (
+  //           <TableCell
+  //             key={headCell.id}
+  //             align={headCell.numeric ? "right" : "left"}
+  //             padding={headCell.disablePadding ? "none" : "default"}
+  //             sortDirection={orderBy === headCell.id ? order : false}
+  //           >
+  //             <TableSortLabel
+  //               active={orderBy === headCell.id}
+  //               direction={orderBy === headCell.id ? order : "asc"}
+  //               onClick={createSortHandler(headCell.id)}
+  //             >
+  //               {headCell.label}
+  //               {orderBy === headCell.id ? (
+  //                 <span className={classes.visuallyHidden}>
+  //                   {order === "desc"
+  //                     ? "sorted descending"
+  //                     : "sorted ascending"}
+  //                 </span>
+  //               ) : null}
+  //             </TableSortLabel>
+  //           </TableCell>
+  //         ))}
+  //       </TableRow>
+  //     </TableHead>
+  //   );
+  // }
+
+  // EnhancedTableHead.propTypes = {
+  //   classes: PropTypes.object.isRequired,
+  //   numSelected: PropTypes.number.isRequired,
+  //   onRequestSort: PropTypes.func.isRequired,
+  //   onSelectAllClick: PropTypes.func.isRequired,
+  //   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
+  //   orderBy: PropTypes.string.isRequired,
+  //   rowCount: PropTypes.number.isRequired,
+  // };
+
   const handleTenantChange = (event) => {
     setSelectedTenantId(event.target.value);
     fetchTableList();
     setSelectedItem("");
+  };
+
+  const handleRequestSort = (event, property) => {
+    console.log(property);
+    const isAsc = orderBy === property && order === "asc";
+    setOrder(isAsc ? "desc" : "asc");
+    setOrderBy(property);
   };
 
   const handleClickOpen = () => {
@@ -193,6 +271,7 @@ export default function Tables(props) {
                   ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
               {tableData.length > 0 &&
                 tableData.map((row, index) => (
@@ -273,6 +352,30 @@ export default function Tables(props) {
             </Select>
           </FormControl>
         </Grid>
+        <Grid item lg={3}>
+          <FormControl style={{ marginTop: "0.5rem" }} variant="outlined">
+            <InputLabel htmlFor="outlined-adornment-password">
+              Search
+            </InputLabel>
+            <OutlinedInput
+              id="outlined-adornment-password"
+              value={searchValue}
+              onChange={handleSearchChange}
+              endAdornment={
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleClickSearch}
+                    edge="end"
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </InputAdornment>
+              }
+              labelWidth={70}
+            />
+          </FormControl>
+        </Grid>
       </Grid>
       <Grid container spacing={1}>
         {/* <Grid item xs={12} sm={12} md={2} lg={2}>
@@ -333,5 +436,16 @@ const useStyles = makeStyles((theme) => ({
   },
   activeTablesList: {
     backgroundColor: "#f0f8fe",
+  },
+  visuallyHidden: {
+    border: 0,
+    clip: "rect(0 0 0 0)",
+    height: 1,
+    margin: -1,
+    overflow: "hidden",
+    padding: 0,
+    position: "absolute",
+    top: 20,
+    width: 1,
   },
 }));
