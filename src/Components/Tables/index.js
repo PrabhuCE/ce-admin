@@ -8,6 +8,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
+import CircularProgress from "@material-ui/core/CircularProgress";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import ImageIcon from "@material-ui/icons/Image";
 import Button from "@material-ui/core/Button";
@@ -58,13 +59,17 @@ export default function Tables(props) {
   const [tenantsList, setTenantsList] = useState([]);
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState();
-  const [searchValue, setSearchValue] = useState();
+  const [searchValue, setSearchValue] = useState("");
+  const [product, setProduct] = useState();
+  const [loading, setLoading] = useState(false);
 
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
   };
 
-  const handleClickSearch = (event) => {};
+  const handleClickSearch = (event) => {
+    fetchTableData(tableCode, 0);
+  };
 
   const [selectedTenantId, setSelectedTenantId] = useState(
     props.history.match.params.tenantId
@@ -155,13 +160,14 @@ export default function Tables(props) {
   };
 
   useEffect(() => {
+    setProduct(localStorage.getItem("product"));
     fetchTableList();
     getTenantList();
   }, []);
 
   const getTenantList = () => {
     let payload = {
-      product: localStorage.getItem("product"),
+      product: product,
     };
     fetchTenantList(payload, successTenantsCallBack, failureTenantsCallBack);
   };
@@ -174,7 +180,7 @@ export default function Tables(props) {
 
   const fetchTableList = () => {
     let payload = {
-      product: localStorage.getItem("product"),
+      product: product,
       tenant_id: selectedTenantId,
     };
     getTablesList(payload, successCB, failureCB);
@@ -228,17 +234,22 @@ export default function Tables(props) {
   };
 
   const fetchTableData = (code, offsetVal) => {
+    setTableData([]);
     let payload = {
       table_id: code,
       tenant_id: selectedTenantId,
       offset: offsetVal,
+      search: searchValue,
       limit: 10,
     };
+    setLoading(true);
+
     getTableData(payload, successCallBack, failureCallBack);
   };
 
   const successCallBack = (res) => {
     setTableData(res.results.data);
+    setLoading(false);
     setTotalRecCount(res.results.total_count);
     setColumnsList(res.results.column_list);
   };
@@ -248,9 +259,11 @@ export default function Tables(props) {
   const displayImgDialog = (image) => {
     setDisplayImage(image);
     setOpen(true);
+    setLoading(false);
   };
 
   const handleSelectChange = (event) => {
+    // setSearchValue("");
     setSelectedItem(event.target.value);
     setTableCode(event.target.value);
     setPage(0);
@@ -273,17 +286,18 @@ export default function Tables(props) {
             </TableHead>
 
             <TableBody>
-              {tableData.length > 0 &&
-                tableData.map((row, index) => (
-                  <TableRow key={index}>
-                    {columnsList.length > 0 &&
-                      columnsList.map((cell, index) => (
-                        <React.Fragment key={index}>
-                          {renderTableCell(cell, row)}
-                        </React.Fragment>
-                      ))}
-                  </TableRow>
-                ))}
+              {tableData.length > 0
+                ? tableData.map((row, index) => (
+                    <TableRow key={index}>
+                      {columnsList.length > 0 &&
+                        columnsList.map((cell, index) => (
+                          <React.Fragment key={index}>
+                            {renderTableCell(cell, row)}
+                          </React.Fragment>
+                        ))}
+                    </TableRow>
+                  ))
+                : "No Records Found"}
             </TableBody>
           </Table>
         </TableContainer>
@@ -304,33 +318,35 @@ export default function Tables(props) {
     <div className={classes.appsContainer}>
       <Header />
       <Grid container spacing={3}>
-        <Grid item lg={3}>
-          <FormControl variant="outlined" className={classes.formControl}>
-            <InputLabel id="demo-simple-select-outlined-label">
-              Tenant
-            </InputLabel>
-            <Select
-              labelId="demo-simple-select-outlined-label"
-              id="demo-simple-select-outlined"
-              value={selectedTenantId}
-              onChange={handleTenantChange}
-              label="Tenant"
-            >
-              <MenuItem value="">
-                <em>None</em>
-              </MenuItem>
-              {tenantsList &&
-                tenantsList.length > 0 &&
-                tenantsList.map((item, index) => {
-                  return (
-                    <MenuItem key={index} value={item.tenant_id}>
-                      {item.name}
-                    </MenuItem>
-                  );
-                })}
-            </Select>
-          </FormControl>
-        </Grid>
+        {product == "myathina" && (
+          <Grid item lg={3}>
+            <FormControl variant="outlined" className={classes.formControl}>
+              <InputLabel id="demo-simple-select-outlined-label">
+                Tenant
+              </InputLabel>
+              <Select
+                labelId="demo-simple-select-outlined-label"
+                id="demo-simple-select-outlined"
+                value={selectedTenantId}
+                onChange={handleTenantChange}
+                label="Tenant"
+              >
+                <MenuItem value="">
+                  <em>None</em>
+                </MenuItem>
+                {tenantsList &&
+                  tenantsList.length > 0 &&
+                  tenantsList.map((item, index) => {
+                    return (
+                      <MenuItem key={index} value={item.tenant_id}>
+                        {item.name}
+                      </MenuItem>
+                    );
+                  })}
+              </Select>
+            </FormControl>
+          </Grid>
+        )}
         <Grid item lg={3}>
           <FormControl variant="outlined" className={classes.formControl}>
             <InputLabel id="demo-simple-select-outlined-label">
@@ -396,7 +412,16 @@ export default function Tables(props) {
           </Paper>
         </Grid> */}
         <Grid item xs={12} sm={12} md={12} lg={12}>
-          {tableData.length > 0 && renderTable()}
+          {loading && (
+            <div style={{ marginTop: "5rem" }}>
+              <CircularProgress />
+            </div>
+          )}
+          {tableData.length > 0
+            ? renderTable()
+            : !loading && (
+                <div style={{ marginTop: "2rem" }}>No Data to Display</div>
+              )}
         </Grid>
       </Grid>
       <Dialog

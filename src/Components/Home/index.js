@@ -25,6 +25,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
     maxWidth: 360,
+    borderRight: "1px solid #e2e1e1",
     backgroundColor: theme.palette.background.paper,
   },
 }));

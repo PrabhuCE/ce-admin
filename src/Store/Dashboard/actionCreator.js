@@ -1,8 +1,12 @@
 import axios from "axios";
 import { apiConfig } from "../../Configs/apiConfigs";
-import { tenantList } from "../../MockData/tenantInfo";
+import { dashboardResults } from "../../MockData/b2b_dashboard_data";
 
-export const fetchTenantList = (payload, successCallBack, failureCallBack) => {
+export const fetchDashboardDataBtoB = (
+  payload,
+  successCallBack,
+  failureCallBack
+) => {
   const url = `${apiConfig.tenants.getTenants}`;
   axios
     .get(url)
@@ -10,6 +14,7 @@ export const fetchTenantList = (payload, successCallBack, failureCallBack) => {
       successCallBack(response.data);
     })
     .catch(function (error) {
-      failureCallBack(error);
+      successCallBack(dashboardResults);
+      //failureCallBack(error);
     });
 };
