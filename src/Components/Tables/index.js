@@ -8,6 +8,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
+import LinkIcon from '@material-ui/icons/Link';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
 import ImageIcon from "@material-ui/icons/Image";
@@ -70,6 +71,8 @@ export default function Tables(props) {
   const handleClickSearch = (event) => {
     fetchTableData(tableCode, 0);
   };
+
+
 
   const [selectedTenantId, setSelectedTenantId] = useState(
     props.history.match.params.tenantId
@@ -135,10 +138,12 @@ export default function Tables(props) {
     setSelectedTenantId(event.target.value);
     fetchTableList();
     setSelectedItem("");
+    setTableData([])
+    setColumnsList([]);
+    setLoading(false)
   };
 
   const handleRequestSort = (event, property) => {
-    console.log(property);
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
@@ -166,17 +171,18 @@ export default function Tables(props) {
   }, []);
 
   const getTenantList = () => {
+
     let payload = {
-      product: product,
+      product: localStorage.getItem("product"),
     };
     fetchTenantList(payload, successTenantsCallBack, failureTenantsCallBack);
   };
 
   const successTenantsCallBack = (res) => {
-    setTenantsList(res.tenants);
+    setTenantsList(res.results);
   };
 
-  const failureTenantsCallBack = (error) => {};
+  const failureTenantsCallBack = (error) => { };
 
   const fetchTableList = () => {
     let payload = {
@@ -211,7 +217,7 @@ export default function Tables(props) {
         return (
           <TableCell align="center">
             <a href={row[cell.col_name]} target="_blank">
-              <CloudDownloadIcon className={classes.downloadIcon} />
+              <LinkIcon className={classes.downloadIcon} />
             </a>
           </TableCell>
         );
@@ -224,7 +230,7 @@ export default function Tables(props) {
     setTablesList(res.results);
   };
 
-  const failureCB = (error) => {};
+  const failureCB = (error) => { };
 
   const handleTableClick = (code) => {
     setTableCode(code);
@@ -254,7 +260,7 @@ export default function Tables(props) {
     setColumnsList(res.results.column_list);
   };
 
-  const failureCallBack = (error) => {};
+  const failureCallBack = (error) => { };
 
   const displayImgDialog = (image) => {
     setDisplayImage(image);
@@ -288,15 +294,15 @@ export default function Tables(props) {
             <TableBody>
               {tableData.length > 0
                 ? tableData.map((row, index) => (
-                    <TableRow key={index}>
-                      {columnsList.length > 0 &&
-                        columnsList.map((cell, index) => (
-                          <React.Fragment key={index}>
-                            {renderTableCell(cell, row)}
-                          </React.Fragment>
-                        ))}
-                    </TableRow>
-                  ))
+                  <TableRow key={index}>
+                    {columnsList.length > 0 &&
+                      columnsList.map((cell, index) => (
+                        <React.Fragment key={index}>
+                          {renderTableCell(cell, row)}
+                        </React.Fragment>
+                      ))}
+                  </TableRow>
+                ))
                 : "No Records Found"}
             </TableBody>
           </Table>
@@ -318,7 +324,7 @@ export default function Tables(props) {
     <div className={classes.appsContainer}>
       <Header />
       <Grid container spacing={3}>
-        {product == "myathina" && (
+        {product == "MyAthina" && (
           <Grid item lg={3}>
             <FormControl variant="outlined" className={classes.formControl}>
               <InputLabel id="demo-simple-select-outlined-label">
@@ -420,8 +426,8 @@ export default function Tables(props) {
           {tableData.length > 0
             ? renderTable()
             : !loading && (
-                <div style={{ marginTop: "2rem" }}>No Data to Display</div>
-              )}
+              <div style={{ marginTop: "2rem" }}>No Data to Display</div>
+            )}
         </Grid>
       </Grid>
       <Dialog

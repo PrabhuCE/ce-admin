@@ -52,6 +52,8 @@ export default function Tenants(props) {
       <div className={classes.buttonContainer}>
         <Button
           variant="outlined"
+          className={classes.button}
+          color="primary"
           onClick={() => {
             proceedToDashboard();
           }}
@@ -69,6 +71,15 @@ const useStyles = makeStyles((theme) => ({
   },
   buttonContainer: {
     marginTop: "1rem",
+  },
+  button: {
+    marginTop: '1rem',
+    marginBottom: '1rem',
+    backgroundColor: '#4285f4',
+    '&:hover': {
+      backgroundColor: '#4285f4',
+      color: '#fff',
+    },
   },
   selectEmpty: {
     marginTop: theme.spacing(2),

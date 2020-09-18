@@ -43,6 +43,16 @@ export const getLoggedInStatus = () => {
     }
 }
 
+export const getBlogLoggedInStatus = () => {
+    const token = localStorage.getItem('blog_token');
+    if (token) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
 
 
 export const getProductSelectionStatus = () => {

@@ -34,7 +34,7 @@ function Home(props) {
   const classes = useStyles();
 
   const [open, setOpen] = React.useState(true);
-  const [selComponent, setSelectedComponent] = React.useState(true);
+  const [selComponent, setSelectedComponent] = React.useState("TableList");
 
   const handleClick = () => {
     setOpen(!open);
@@ -58,12 +58,7 @@ function Home(props) {
             aria-labelledby="nested-list-subheader"
             className={classes.root}
           >
-            <ListItem button onClick={handleClick}>
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary="Menu" />
-            </ListItem>
+
 
             <ListItem
               button

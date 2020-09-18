@@ -13,14 +13,15 @@ import Link from '@material-ui/core/Link';
 import { NavLink, withRouter } from "react-router-dom";
 import Tenants from '../Tenants/tenants';
 // import { connect } from 'react-redux';
+import Snackbar from '@material-ui/core/Snackbar';
 import { apiConfig } from '../../Configs/apiConfigs';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Logo from '../../Static/logo.png';
 import myAthinaLogo from '../../Static/myAthinaLogo.png';
 import prepLogo from '../../Static/preplogo.svg';
 import tvLogo from '../../Static/tv_logo.svg';
+import invictaLogo from '../../Static/invictalogo.png';
 import { generateJwtToken } from '../../Helpers/basics'
-// import { showSnackBar } from '../../store/AlertMessages/actionCreator';
 import { tenantList } from '../../MockData/tenantInfo'
 import { doTenantLogin } from '../../Store/Login/actionCreator';
 
@@ -31,6 +32,10 @@ export default function TenantLogin(props) {
     const [renderLogin, setRenderLogin] = useState(true);
     const [productImage, setProductImage] = useState();
     const [tenantsList, setTenantsList] = useState([]);
+    const [openSnack, setOpenSnack] = useState(false);
+    const [snackBarMsg, setSnackBarMsg] = useState('');
+    const posVert = "top";
+    const posHori = "right";
 
 
     useEffect(() => {
@@ -42,6 +47,8 @@ export default function TenantLogin(props) {
             setProductImage(prepLogo);
         } else if (paramVal !== undefined && paramVal === "TableVision") {
             setProductImage(tvLogo);
+        } else if (paramVal !== undefined && paramVal === "Invicta") {
+            setProductImage(invictaLogo);
         }
     }, [])
 
@@ -49,6 +56,14 @@ export default function TenantLogin(props) {
         var re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
         return re.test(String(email).toLowerCase());
     }
+
+    const handleSnackClose = (event, reason) => {
+        if (reason === 'clickaway') {
+            return;
+        }
+
+        setOpenSnack(false);
+    };
 
     const doSignIn = (event) => {
         event.preventDefault();
@@ -65,24 +80,15 @@ export default function TenantLogin(props) {
                 loginCredentials.password = password;
                 doTenantLogin(loginCredentials, successCallBack, failureCallBack)
             } else {
-                // props.showSnackBar(
-                //     {
-                //         state: true,
-                //         message: 'Username Not Valid!',
-                //         type: 'error'
-                //     }
-                // )
+                setOpenSnack(true);
+                setSnackBarMsg("Username not valid")
                 setDisplayProgress(false);
                 setBtnDisabled(false);
             }
         } else {
-            // props.showSnackBar(
-            //     {
-            //         state: true,
-            //         message: 'Credentials cannot be Empty!',
-            //         type: 'error'
-            //     }
-            // )
+            setOpenSnack(true);
+            setSnackBarMsg("Credentials cannot be Empty!")
+
             setDisplayProgress(false);
             setBtnDisabled(false);
         }
@@ -99,50 +105,50 @@ export default function TenantLogin(props) {
     }
 
     const failureCallBack = () => {
-        // props.showSnackBar(
-        //     {
-        //         state: true,
-        //         message: 'Login Failed.Please Check Your Credentials!',
-        //         type: 'error'
-        //     }
-        // )
+        setOpenSnack(true);
+        setSnackBarMsg("Login Failed. Please Check your Credentials!")
         setDisplayProgress(false);
         setBtnDisabled(false);
     }
 
     return (
-        <Grid container
-            direction="row"
-            justify="center"
-            alignItems="center" className={classes.container} spacing={2}>
-            <Card className={classes.card}
-                variant="outlined">
-                <CardContent>
-                    <img src={productImage} height={90} width={240} />
-                    <br /> <br />
-                    {renderLogin ? <form className={classes.form} noValidate onSubmit={evnt => { evnt.preventDefault() }} autoComplete="off">
-                        <FormControl fullWidth={true} className={classes.formControll} >
-                            <InputLabel htmlFor="userName">UserId</InputLabel>
-                            <Input id="username" />
-                        </FormControl>
-                        <FormControl fullWidth={true} className={classes.formControll}>
-                            <InputLabel htmlFor="password">Password</InputLabel>
-                            <Input id="password" type="password" />
-                        </FormControl>
-                        <Button
-                            variant="contained"
-                            disabled={btnDisabled}
-                            type="submit"
-                            color="primary"
-                            className={classes.button}
-                            onClick={(event) => { doSignIn(event) }}
-                        >
-                            Sign In  {displayProgress && <CircularProgress className={classes.progressIcon} size={20} />}
-                        </Button>
-                    </form> : <Tenants tenants={tenantsList} history={props.history} />}
-                </CardContent>
-            </Card>
-        </Grid>
+        <React.Fragment>
+            <Grid container
+                direction="row"
+                justify="center"
+                alignItems="center" className={classes.container} spacing={2}>
+                <Card className={classes.card}
+                    variant="outlined">
+                    <CardContent>
+                        <img src={productImage} height={90} width={240} />
+                        <br /> <br />
+                        {renderLogin ? <form className={classes.form} noValidate onSubmit={evnt => { evnt.preventDefault() }} autoComplete="off">
+                            <FormControl fullWidth={true} className={classes.formControll} >
+                                <InputLabel htmlFor="userName">UserId</InputLabel>
+                                <Input id="username" />
+                            </FormControl>
+                            <FormControl fullWidth={true} className={classes.formControll}>
+                                <InputLabel htmlFor="password">Password</InputLabel>
+                                <Input id="password" type="password" />
+                            </FormControl>
+                            <Button
+                                variant="contained"
+                                disabled={btnDisabled}
+                                type="submit"
+                                color="primary"
+                                className={classes.button}
+                                onClick={(event) => { doSignIn(event) }}
+                            >
+                                Sign In  {displayProgress && <CircularProgress className={classes.progressIcon} size={20} />}
+                            </Button>
+                        </form> : <Tenants tenants={tenantsList} history={props.history} />}
+                    </CardContent>
+                </Card>
+            </Grid>
+            <Snackbar anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+                open={openSnack} autoHideDuration={6000} onClose={handleSnackClose} message={snackBarMsg}>
+            </Snackbar>
+        </React.Fragment>
     )
 }
 
@@ -161,6 +167,14 @@ const useStyles = makeStyles({
     },
     divider: {
         marginTop: '-23px'
+    },
+    button: {
+        marginTop: '1rem',
+        marginBottom: '1rem',
+        backgroundColor: '#4285f4',
+        '&:hover': {
+            backgroundColor: '#4285f4',
+        },
     },
     buttonGoogle: {
         margin: '1rem',

@@ -5,6 +5,7 @@ const base_domain = "https://cmns.api.moocpedia.com/";
 const prep_domain = "https://api.prep.continualengine.com/";
 const tv_domain = "https://api.tablevision.ai/";
 const myathina_domain = "https://api.myathina.com/";
+const invicta_domain = "https://invictaapi.continualengine.com/";
 
 //localstorage tenant name, update on switch, importing folder path should vary acoordingly
 
@@ -22,6 +23,9 @@ switch (product) {
   case "TableVision":
     console.log("Inside TV");
     product_domain = tv_domain;
+    break;
+  case "Invicta":
+    product_domain = invicta_domain;
     break;
   default:
     console.log("Inside Def");

@@ -1,13 +1,17 @@
 const iconColor = "#2e8eec";
 const appBlue = "#2e8eec";
+const adminBlue = '#4285f4';
 const appGrey = "#464444";
 const lightGrey = "#f9f9f9";
 const appGreen = "#6ac685";
 const banner_darkBlue = "#1c234a";
 const orange = "#f2903d";
 const background_blue = "#f3f6f7";
+const tory_blue = "#11539f";
 const background_lightblue = "#f3f3f3";
 const red = "#f24e3d";
+const white = "#fff";
+
 
 export const style = {
   containerPaddingTop: {
@@ -71,11 +75,15 @@ export const style = {
     _darkBlue: banner_darkBlue,
     _orange: orange,
     _red: red,
+    _white: white,
+    _adminBlue: adminBlue,
+    _tory_blue: tory_blue
   },
   backgroundColor: {
     _card: lightGrey,
     _screen: background_blue,
     _white: "#FFF",
+    _adminBlue: adminBlue,
     _screenLight: background_lightblue,
   },
   fontSize: {

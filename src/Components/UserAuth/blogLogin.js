@@ -14,7 +14,7 @@ import { NavLink, withRouter } from "react-router-dom";
 //import { connect } from 'react-redux';
 import { apiConfig } from '../../Configs/apiConfigs';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import Logo from '../../Static/logo.png';
+import CELogo from '../../Static/ce.png';
 // import { showSnackBar } from '../../store/AlertMessages/actionCreator';
 import { login } from '../../Store/Login/actionCreator';
 import { generateJwtToken } from '../../Helpers/basics';
@@ -68,14 +68,12 @@ export default function Login(props) {
         //     setDisplayProgress(false);
         //     setBtnDisabled(false);
         // }
-        props.history.replace('/apps');
+        props.history.replace('/blog');
     }
 
     const successCallBack = (res) => {
-        // var userToken = generateJwtToken(res.user)
-        // localStorage.setItem('ce_user', userToken);
-        // localStorage.setItem('ce_token', res.token);
-        // setDisplayProgress(false);
+        var userToken = generateJwtToken(res.user)
+        setDisplayProgress(false);
         props.history.replace('/apps');
     }
 
@@ -92,20 +90,21 @@ export default function Login(props) {
             {renderLogin && <Card className={classes.card}
                 variant="outlined">
                 <CardContent>
-                    <img src={Logo} height={100} width={100} />
-                    <br /> <br />
+                    <img src={CELogo} height={100} width={140} />
+                    <br />
+                    <div style={{
+                        margin: '1rem', color: '#2d94dd', fontSize: '1.5rem'
+                    }}>Blogs Login </div>
                     <form className={classes.form} noValidate onSubmit={evnt => { evnt.preventDefault() }} autoComplete="off">
-                        {/* <FormControl fullWidth={true} className={classes.formControll} >
+                        <FormControl fullWidth={true} className={classes.formControll} >
                             <InputLabel htmlFor="userName">Email address</InputLabel>
                             <Input id="username" />
                         </FormControl>
                         <FormControl fullWidth={true} className={classes.formControll}>
                             <InputLabel htmlFor="password">Password</InputLabel>
                             <Input id="password" type="password" />
-                        </FormControl> */}
-                        <div style={{
-                            margin: '1rem', color: '#2d94dd', fontSize: '1.5rem'
-                        }}>Continual Engine Admin</div>
+                        </FormControl>
+
                         <Button
                             variant="contained"
                             disabled={btnDisabled}
@@ -114,7 +113,7 @@ export default function Login(props) {
                             className={classes.button}
                             onClick={(event) => { doSignIn(event) }}
                         >
-                            Proceed  {displayProgress && <CircularProgress className={classes.progressIcon} size={20} />}
+                            Login  {displayProgress && <CircularProgress className={classes.progressIcon} size={20} />}
                         </Button>
                     </form>
                 </CardContent>
@@ -164,7 +163,7 @@ const useStyles = makeStyles({
         paddingLeft: '0.5rem'
     },
     card: {
-        maxWidth: 400,
+        maxWidth: 320,
         textAlign: "center"
     },
     form: {

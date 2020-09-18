@@ -4,8 +4,13 @@ import { tenantList } from "../../MockData/tenantInfo";
 
 export const fetchTenantList = (payload, successCallBack, failureCallBack) => {
   const url = `${apiConfig.tenants.getTenants}`;
+  let header = {
+    headers: {
+      Authorization: "Token " + localStorage.getItem("ce_admin_token"),
+    },
+  };
   axios
-    .get(url)
+    .post(url, payload, header)
     .then(function (response) {
       successCallBack(response.data);
     })

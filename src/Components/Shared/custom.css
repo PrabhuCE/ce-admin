@@ -1,0 +1,11 @@
+:root {
+  --ck-z-default: 100;
+  --ck-z-modal: calc(var(--ck-z-default) + 999);
+}
+.ck.ck-editor__editable_inline {
+  height: 360px;
+  border: 1px solid #333;
+}
+#popupEditor .ck.ck-editor__editable_inline {
+  height: 500px;
+}
