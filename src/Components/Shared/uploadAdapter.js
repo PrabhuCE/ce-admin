@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { apiConfig } from '../../Configs/apiConfigs';
 
 export class UploadAdapter {
     constructor(loader) {
@@ -10,11 +11,10 @@ export class UploadAdapter {
             const data = new FormData()
             data.append("file", file)
             const genericError = `Couldn't upload file: ${file.name}.`
-
             return axios({
                 data,
                 method: "POST",
-                url: "API_UPLOAD_URL",
+                url: apiConfig.getTables.fetchTableData,
                 headers: {
                     "Content-Type": "multipart/form-data",
                 },
@@ -26,8 +26,9 @@ export class UploadAdapter {
                     )
                 },
             })
-                .then(({ data }) => ({ default: data.url }))
-                .catch(({ error }) => Promise.reject(error?.message ?? genericError))
+                .then(({ data }) => ({ default: "https://myathina-blog.s3.amazonaws.com/banner/findCourse.png" }))
+                //     .catch(({ error }) => Promise.reject(error?.message ?? genericError))
+                .catch(({ error }) => ({ default: "https://myathina-blog.s3.amazonaws.com/banner/findCourse.png" }))
         })
     }
 

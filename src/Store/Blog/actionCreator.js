@@ -1,15 +1,9 @@
+import axios from 'axios';
+import { apiConfig } from '../../Configs/apiConfigs';
 import Image1 from '../../Static/1.png';
 import Image2 from '../../Static/2.png';
 import Image3 from '../../Static/3.jpg';
 import Image4 from '../../Static/4.png';
-
-
-
-
-
-
-
-
 
 const apps = {
     results: [{
@@ -24,6 +18,58 @@ const apps = {
     }
     ]
 }
+
+export const getAppsList = (successCB, failureCB) => {
+
+    let url = apiConfig.apps.getAppsList;
+
+    axios.get(url).then((response) => {
+        successCB(response.data)
+    }).catch((error) => {
+        successCB(apps)
+        //failureCB(error)
+    })
+
+}
+
+export const categoryListData = {
+    results: [{
+        id: 1,
+        categoryTitle: 'Programming',
+        slug: 'programming'
+    }, {
+        id: 2,
+        categoryTitle: 'Leadership',
+        slug: 'leadership'
+    }, {
+        id: 3,
+        categoryTitle: 'Marketing',
+        slug: 'marketing'
+    }, {
+        id: 4,
+        categoryTitle: 'General',
+        slug: 'general'
+    }, {
+        id: 5,
+        categoryTitle: 'Computer Science',
+        slug: 'computer-science'
+    }
+    ]
+}
+
+export const getCategoryList = (payload, successCB, failureCB) => {
+    let url = apiConfig.apps.getCategoryList;
+    let paramObj = {
+        app_id: payload.appId
+    }
+    axios.get(url, paramObj).then((response) => {
+        successCB(response.data)
+    }).catch((error) => {
+        successCB(categoryListData)
+        //failureCB(error)
+    })
+}
+
 
 export const blogListData = {
     id: 1,
@@ -103,29 +149,18 @@ export const blogListData = {
     }]
 }
 
-export const categoryListData = {
-    results: [{
-        id: 1,
-        categoryTitle: 'Programming',
-        slug: 'programming'
-    }, {
-        id: 2,
-        categoryTitle: 'Leadership',
-        slug: 'leadership'
-    }, {
-        id: 3,
-        categoryTitle: 'Marketing',
-        slug: 'marketing'
-    }, {
-        id: 4,
-        categoryTitle: 'General',
-        slug: 'general'
-    }, {
-        id: 5,
-        categoryTitle: 'Computer Science',
-        slug: 'computer-science'
+export const getBlogListData = (payload, successCB, failureCB) => {
+    let url = apiConfig.apps.getBlogListData;
+    let paramObj = {
+        app_id: payload.appId,
+        category_id: payload.categoryId
     }
-    ]
+    axios.get(url, paramObj).then((response) => {
+        successCB(response.data)
+    }).catch((error) => {
+        successCB(blogListData)
+        //failureCB(error)
+    })
 }
 
 
@@ -205,6 +240,56 @@ export const blogContent = {
     It has survived not only five centuries, but also the leap into electronic typesetting </p><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
     when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p><br /><p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
     scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p></div>`
+}
+
+export const blogContent1 = {
+    id: 1,
+    title: "What is Lorem ? Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+    thumbnail_img: Image4,
+    date_posted: "3 Aug 2020",
+    likes_count: 23,
+    duration: 3,
+    author_name: "Deepika",
+    author_img: Image4,
+    category: "Programming",
+    keywords: "",
+    content: `<div><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p><br /><p> 
+    Lorem Ipsum is simply dummy text of the printing and typesetting industry. 
+    Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it 
+    to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p> <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+    It has survived not only five centuries, but also the leap into electronic typesetting </p><br /><p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. 
+    It has survived not only five centuries, but also the leap into electronic typesetting </p><p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, 
+    when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p><br /><p> Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and 
+    scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting </p></div>`,
+    meta_content: {
+        meta_title: 'test meta title',
+        meta_description: 'test meta desc',
+        meta_keyword: 'test meta keyword',
+        meta_robot: 'test',
+        meta_author: 'meta author',
+    },
+    og_content: {
+        og_title: 'og title',
+        og_url: 'od url',
+        og_description: 'og_description',
+        og_keyword: 'keywords',
+        og_image: 'og image'
+    }
+}
+
+export const getBlogContent = (payload, successCB, failureCB) => {
+    let url = apiConfig.apps.getBlogContent;
+    let paramObj = {
+        app_id: payload.appId,
+        category_id: payload.categoryId,
+        blog_id: payload.blogId
+    }
+    axios.get(url, paramObj).then((response) => {
+        successCB(response.data)
+    }).catch((error) => {
+        successCB(blogContent1)
+        //failureCB(error)
+    })
 }
 
 export const relatedArticles = {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Paper from '@material-ui/core/Paper';
 import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
@@ -12,9 +12,11 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
+import Input from "@material-ui/core/Input";
 //import TextEditorClassic from '../Shared/TextEditorClassic';
 import TextEditor from '../Shared/TextEditor';
 import Header from '../../Components/Header';
+import { getBlogContent } from '../../Store/Blog/actionCreator';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -28,7 +30,12 @@ const useStyles = makeStyles((theme) => ({
         padding: '1rem'
     },
     uploadBtn: {
-        marginTop: '0.5rem'
+        marginTop: '0.5rem',
+        color: '#fff',
+        backgroundColor: '#2e8eec',
+        '&:hover': {
+            backgroundColor: '#2e8eec',
+        }
     },
     uploadCtr: {
         textAlign: 'initial'
@@ -37,7 +44,11 @@ const useStyles = makeStyles((theme) => ({
         width: '100%'
     },
     addBtn: {
-        marginTop: '0.5rem'
+        marginTop: '0.5rem',
+        backgroundColor: '#2e8eec',
+        '&:hover': {
+            backgroundColor: '#2e8eec',
+        }
     },
     chipCtr: {
         display: 'flex',
@@ -58,14 +69,19 @@ const useStyles = makeStyles((theme) => ({
 function CreateBlog(props) {
     const classes = useStyles();
     const [category, setCategory] = useState('');
-    const [title, setTitle] = useState();
+    const [title, setTitle] = useState('');
     const [urlSlug, setUrlSlug] = useState();
     const [shortDesc, setShortDesc] = useState();
     const [thumbnailImg, setThumbnailImg] = useState();
+    const [thumbnailFileName, setThumbnailFileName] = useState('');
+    const [authorImg, setAuthorImg] = useState();
+    const [authorFileName, setAuthorFileName] = useState('');
     const [blogContent, setBlogContent] = useState();
     const [author, setAuthor] = useState();
+    const [keywordTxt, setKeywordTxt] = useState();
     const [keywords, setKeywords] = useState([]);
-    const [app, setApp] = useState();
+    const [loading, setLoading] = useState(true);
+    const [app, setApp] = useState(0);
     //Meta Content Object
     const [metaContent, setMetaContent] = useState({
         "meta-title": '',
@@ -86,6 +102,30 @@ function CreateBlog(props) {
 
     })
 
+    useEffect(() => {
+        let urlParams = new URLSearchParams(window.location.search);
+        let paramVal = urlParams.get("blog_id");
+        if (paramVal) {
+            getBlogContent(paramVal, successCB, failureCB);
+        } else {
+            setLoading(false)
+        }
+    }, [])
+
+    const onFileToUploadClick = (imgType) => {
+        document.getElementById(imgType).click();
+    };
+
+    const successCB = (res) => {
+        setTitle(res.title);
+        setAuthor(res.author_name);
+        setLoading(false)
+    }
+
+    const failureCB = (err) => {
+
+    }
+
     const handleChange = (event) => {
         setCategory(event.target.value);
     };
@@ -93,9 +133,66 @@ function CreateBlog(props) {
         setApp(event.target.value);
     };
 
+    const handleTitleChange = (event) => {
+        setTitle(event.target.value)
+    }
 
+    const onThumbnailChangeHandler = (event) => {
+        if (
+            event.target.files.length > 0 &&
+            (event.target.files[0].type === "image/png" || event.target.files[0].type === "image/jpg" || event.target.files[0].type === "image/jpeg")
+        ) {
+            setThumbnailFileName(event.target.files[0].name);
+            let reader = new FileReader();
+            reader.onloadend = () => {
+                setThumbnailImg(reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        } else {
+            // props.showSnackBar({
+            //     state: true,
+            //     message: "Please Upload a Valid png/jpg/jpeg file!",
+            //     type: "error",
+            // });
+        }
+        event.target.value = '';
 
+    }
 
+    const onAuthorImgChangeHandler = (event) => {
+        if (
+            event.target.files.length > 0 &&
+            (event.target.files[0].type === "image/png" || event.target.files[0].type === "image/jpg" || event.target.files[0].type === "image/jpeg")
+        ) {
+            setAuthorFileName(event.target.files[0].name);
+            let reader = new FileReader();
+            reader.onloadend = () => {
+                setAuthorImg(reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        } else {
+            // props.showSnackBar({
+            //     state: true,
+            //     message: "Please Upload a Valid png/jpg/jpeg file!",
+            //     type: "error",
+            // });
+        }
+        event.target.value = '';
+    }
+
+    const handleKeywordTxtChange = (event) => {
+        setKeywordTxt(event.target.value);
+    }
+
+    const handleChipDelete = (chipToDelete) => () => {
+        setKeywords((keywords) => keywords.filter((chip) => chip !== chipToDelete));
+    };
+
+    const addKeyword = () => {
+        let arr = [...keywords, keywordTxt]
+        setKeywords(arr)
+        setKeywordTxt('');
+    }
 
     return (
         <div>
@@ -142,7 +239,7 @@ function CreateBlog(props) {
                                 </Grid>
 
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <TextField className={classes.title} variant='outlined' label="Blog Title">
+                                    <TextField className={classes.title} variant='outlined' value={title} onChange={handleTitleChange} label="Blog Title">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
@@ -154,13 +251,17 @@ function CreateBlog(props) {
                                                     color="default"
                                                     className={classes.uploadBtn}
                                                     startIcon={<CloudUploadIcon />}
+                                                    onClick={() => {
+                                                        onFileToUploadClick("thumbnailImage");
+                                                    }}
                                                 >
                                                     Thumbnail
                                                 </Button>
                                             </div>
+                                            <Input accept="image/*" capture type="file" style={{ display: "none" }} id="thumbnailImage" onChange={onThumbnailChangeHandler} />
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={8} lg={8}>
-                                            <div className={classes.uploadFileName}>File_name_1.jpeg</div>
+                                            <div className={classes.uploadFileName}>{thumbnailFileName}</div>
                                         </Grid>
                                     </Grid>
                                 </Grid>
@@ -185,19 +286,23 @@ function CreateBlog(props) {
                                             color="default"
                                             className={classes.uploadBtn}
                                             startIcon={<CloudUploadIcon />}
+                                            onClick={() => {
+                                                onFileToUploadClick("authorImage");
+                                            }}
                                         >
                                             Author Img
                                         </Button>
+                                        <Input accept="image/*" capture type="file" style={{ display: "none" }} id="authorImage" onChange={onAuthorImgChangeHandler} />
                                     </div>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} lg={3}>
-                                    <div className={classes.uploadFileName}>File_name_1.jpeg</div>
+                                    <div className={classes.uploadFileName}>{authorFileName}</div>
                                 </Grid>
 
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={9} md={9} lg={9}>
-                                            <TextField className={classes.title} variant='outlined' label="Keywords">
+                                            <TextField className={classes.title} variant='outlined' value={keywordTxt} onChange={handleKeywordTxtChange} label="Keywords" >
 
                                             </TextField>
                                         </Grid>
@@ -205,6 +310,7 @@ function CreateBlog(props) {
                                             <Button
                                                 variant="contained"
                                                 color="primary"
+                                                onClick={() => { addKeyword() }}
                                                 className={classes.addBtn}
                                             >
                                                 Add
@@ -212,7 +318,14 @@ function CreateBlog(props) {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12} lg={12}>
-
+                                        {keywords.length > 0 && keywords.map((item, index) => (
+                                            <Chip
+                                                variant="outlined"
+                                                label={item}
+                                                onDelete={handleChipDelete(item)}
+                                                className={classes.chip}
+                                            />
+                                        ))}
                                     </Grid>
                                 </Grid>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>

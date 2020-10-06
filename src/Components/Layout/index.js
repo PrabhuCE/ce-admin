@@ -21,7 +21,6 @@ function Layout(props) {
         <Route path="/createblog" history={props.history} component={BlogCreate} />
         <Route path="/apps" history={props.history} component={AppList} />
         <Route path="/categorydet" history={props.history} component={CatDetails} />
-
         <PrivateRoute
           path="/tenantlogin"
           history={props.history}

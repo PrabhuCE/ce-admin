@@ -180,8 +180,13 @@ function BlogList(props) {
     const [appName, setAppName] = useState('PREP');
     const [catEditFlag, setCatEditFlag] = useState(false);
 
+    const editBlogContent = () => {
+        props.history.push('/createBlog?blog_id=123')
+    }
+
     const handleDialogOpen = (type) => {
         if (type === 'create') {
+            setCatEditFlag(false);
             setDialogOpen(true);
         } else if (type === 'edit') {
             setDialogOpen(true);
@@ -238,7 +243,7 @@ function BlogList(props) {
                     <Button color="primary" variant='outlined' style={{ marginRight: '0.5rem' }}>
                         Publish
                     </Button>
-                    <Button color="primary" variant='outlined'>
+                    <Button color="primary" variant='outlined' onClick={editBlogContent}>
                         Edit Blog
                     </Button>
 
@@ -346,31 +351,30 @@ function BlogList(props) {
                         <Grid item xs={12} sm={12} md={12} lg={12}>
                             {catEditFlag ?
                                 <React.Fragment>
-
-
                                     <div className={classes.selCatName}>{appName}</div>
                                     <TextField className={classes.catTitle} variant='outlined' value={catName} label="Category Title">
                                     </TextField>
                                 </React.Fragment>
 
-                                : <React.Fragment><FormControl variant="outlined" className={classes.formControl}>
-                                    <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>
-                                    <Select
-                                        labelId="demo-simple-select-outlined-label"
-                                        id="demo-simple-select-outlined"
-                                        value={catSelApp}
-                                        onChange={handleCatAppChange}
-                                        label="App"
-                                    >
+                                : <React.Fragment>
+                                    <FormControl variant="outlined" className={classes.formControl}>
+                                        <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-outlined-label"
+                                            id="demo-simple-select-outlined"
+                                            value={catSelApp}
+                                            onChange={handleCatAppChange}
+                                            label="App"
+                                        >
 
-                                        <MenuItem value={1}>PREP</MenuItem>
-                                        <MenuItem value={2}>MyAthina</MenuItem>
-                                        <MenuItem value={3}>TableVision</MenuItem>
-                                    </Select>
-                                </FormControl>
+                                            <MenuItem value={1}>PREP</MenuItem>
+                                            <MenuItem value={2}>MyAthina</MenuItem>
+                                            <MenuItem value={3}>TableVision</MenuItem>
+                                        </Select>
+                                    </FormControl>
                                     <TextField className={classes.catTitle} variant='outlined' label="Category Title">
-                                    </TextField> </React.Fragment>}
-
+                                    </TextField>
+                                </React.Fragment>}
                         </Grid>
                     </Grid>
                 </DialogContent>
@@ -379,7 +383,6 @@ function BlogList(props) {
                         <Button color="primary" variant='outlined'>
                             Update
                     </Button>
-
                         : <Button color="primary" variant='outlined'>
                             Submit
                             </Button>}
