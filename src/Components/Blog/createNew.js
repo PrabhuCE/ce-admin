@@ -50,9 +50,14 @@ const useStyles = makeStyles((theme) => ({
             backgroundColor: '#2e8eec',
         }
     },
+    chip: {
+        color: '#2e8eec',
+        border: '1px solid #2e8eec',
+        margin: '0.5rem'
+    },
     chipCtr: {
         display: 'flex',
-        justifyContent: 'center',
+        textAlign: 'initial',
         margin: '0.5rem'
     },
     divider: {
@@ -62,6 +67,9 @@ const useStyles = makeStyles((theme) => ({
     uploadFileName: {
         textAlign: 'initial',
         marginTop: '1rem'
+    },
+    button: {
+
     }
 }))
 
@@ -71,6 +79,7 @@ function CreateBlog(props) {
     const [category, setCategory] = useState('');
     const [title, setTitle] = useState('');
     const [urlSlug, setUrlSlug] = useState();
+    const [duration, setDuration] = useState();
     const [shortDesc, setShortDesc] = useState();
     const [thumbnailImg, setThumbnailImg] = useState();
     const [thumbnailFileName, setThumbnailFileName] = useState('');
@@ -82,6 +91,8 @@ function CreateBlog(props) {
     const [keywords, setKeywords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [app, setApp] = useState(0);
+    const [ogImg, setOgImg] = useState();
+    const [ogFileName, setOgFileName] = useState('');
     //Meta Content Object
     const [metaContent, setMetaContent] = useState({
         "meta-title": '',
@@ -97,9 +108,7 @@ function CreateBlog(props) {
         "og-title": '',
         "og-url": '',
         "og-desc": '',
-        "og-keywords": '',
-        "og-imaget": '',
-
+        "og-keywords": ''
     })
 
     useEffect(() => {
@@ -137,6 +146,18 @@ function CreateBlog(props) {
         setTitle(event.target.value)
     }
 
+    const handleUrlSlugChange = (event) => {
+        setUrlSlug(event.target.value)
+    }
+
+    const handleDurationChange = (event) => {
+        setDuration(event.target.value)
+    }
+
+    const handleAuthorChange = (event) => {
+        setAuthor(event.target.value)
+    }
+
     const onThumbnailChangeHandler = (event) => {
         if (
             event.target.files.length > 0 &&
@@ -156,7 +177,6 @@ function CreateBlog(props) {
             // });
         }
         event.target.value = '';
-
     }
 
     const onAuthorImgChangeHandler = (event) => {
@@ -168,6 +188,27 @@ function CreateBlog(props) {
             let reader = new FileReader();
             reader.onloadend = () => {
                 setAuthorImg(reader.result);
+            };
+            reader.readAsDataURL(event.target.files[0]);
+        } else {
+            // props.showSnackBar({
+            //     state: true,
+            //     message: "Please Upload a Valid png/jpg/jpeg file!",
+            //     type: "error",
+            // });
+        }
+        event.target.value = '';
+    }
+
+    const onOGImgChangeHandler = (event) => {
+        if (
+            event.target.files.length > 0 &&
+            (event.target.files[0].type === "image/png" || event.target.files[0].type === "image/jpg" || event.target.files[0].type === "image/jpeg")
+        ) {
+            setOgFileName(event.target.files[0].name);
+            let reader = new FileReader();
+            reader.onloadend = () => {
+                setOgImg(reader.result);
             };
             reader.readAsDataURL(event.target.files[0]);
         } else {
@@ -192,6 +233,14 @@ function CreateBlog(props) {
         let arr = [...keywords, keywordTxt]
         setKeywords(arr)
         setKeywordTxt('');
+    }
+
+    const handleMetaContentChange = (field, event) => {
+        setMetaContent({ ...metaContent, [field]: event.target.value })
+    }
+
+    const handleOGContentChange = (field, event) => {
+        setOGContent({ ...OGContent, [field]: event.target.value })
     }
 
     return (
@@ -266,17 +315,17 @@ function CreateBlog(props) {
                                     </Grid>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="URL Slug">
+                                    <TextField className={classes.title} onChange={handleUrlSlugChange} variant='outlined' label="URL Slug">
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={2} lg={2}>
-                                    <TextField className={classes.title} variant='outlined' label="Duration(Mins)">
+                                    <TextField className={classes.title} onChange={handleDurationChange} variant='outlined' label="Duration(Mins)">
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={4} lg={4}>
-                                    <TextField className={classes.title} variant='outlined' label="Author">
+                                    <TextField className={classes.title} onChange={handleAuthorChange} variant='outlined' label="Author">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} lg={3}>
@@ -318,66 +367,92 @@ function CreateBlog(props) {
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12} lg={12}>
-                                        {keywords.length > 0 && keywords.map((item, index) => (
-                                            <Chip
-                                                variant="outlined"
-                                                label={item}
-                                                onDelete={handleChipDelete(item)}
-                                                className={classes.chip}
-                                            />
-                                        ))}
+                                        <div className={classes.chipCtr}>
+                                            {keywords.length > 0 && keywords.map((item, index) => (
+                                                <Chip
+                                                    variant="outlined"
+                                                    label={item}
+                                                    onDelete={handleChipDelete(item)}
+                                                    className={classes.chip}
+                                                />
+                                            ))}
+                                        </div>
                                     </Grid>
-                                </Grid>
-                                <Grid item xs={12} sm={12} md={12} lg={12}>
                                 </Grid>
                                 <Divider className={classes.divider} />
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <TextEditor />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-title">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-title', e) }} value={metaContent["meta-title"]} label="meta-title">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-description">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-desc', e) }} value={metaContent["meta-desc"]} label="meta-description">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-keyword">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-keyword', e) }} value={metaContent["meta-keyword"]} label="meta-keyword">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-author">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-author', e) }} value={metaContent["meta-author"]} label="meta-author">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-robot">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-robot', e) }} value={metaContent["meta-robot"]} label="meta-robot">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="meta-copyright">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-copyright', e) }} value={metaContent["meta-copyright"]} label="meta-copyright">
                                     </TextField>
                                 </Grid>
                                 <Divider className={classes.divider} />
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="og-title">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-title', e) }} value={OGContent["og-title"]} label="og-title">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="og-url">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-url', e) }} value={OGContent["og-url"]} label="og-url">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="og-description">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-desc', e) }} value={OGContent["og-desc"]} label="og-description">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="og-keyword">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-keywords', e) }} value={OGContent["og-keywords"]} label="og-keyword">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' label="og-image">
-                                    </TextField>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6} md={4} lg={4}>
+                                            <div className={classes.uploadCtr}>
+                                                <Button
+                                                    variant="contained"
+                                                    color="default"
+                                                    className={classes.uploadBtn}
+                                                    startIcon={<CloudUploadIcon />}
+                                                    onClick={() => {
+                                                        onFileToUploadClick("ogImage");
+                                                    }}
+                                                >
+                                                    OG Image
+                                        </Button>
+                                                <Input accept="image/*" capture type="file" style={{ display: "none" }} id="ogImage" onChange={onOGImgChangeHandler} />
+                                            </div>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={8} lg={8}>
+                                            <div className={classes.uploadFileName}>{ogFileName}</div>
+                                        </Grid>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                            <Grid container spacing={2}>
+                                <Grid item xs={12} sm={12} md={12} lg={12}>
+                                    <Button variant="contained" color="primary" className={classes.uploadBtn}>
+                                        Submit
+                        </Button>
                                 </Grid>
                             </Grid>
                         </Paper>
@@ -388,6 +463,7 @@ function CreateBlog(props) {
 
 
                 </Grid>
+
             </div>
         </div >
     )
