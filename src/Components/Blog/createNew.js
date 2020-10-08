@@ -17,6 +17,7 @@ import Input from "@material-ui/core/Input";
 import TextEditor from '../Shared/TextEditor';
 import Header from '../../Components/Header';
 import { getBlogContent } from '../../Store/Blog/actionCreator';
+import { connect } from 'react-redux';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -77,6 +78,7 @@ const useStyles = makeStyles((theme) => ({
 function CreateBlog(props) {
     const classes = useStyles();
     const [category, setCategory] = useState('');
+    const [apps, setApps] = useState(props.appsList && props.appsList || []);
     const [title, setTitle] = useState('');
     const [urlSlug, setUrlSlug] = useState();
     const [duration, setDuration] = useState();
@@ -264,9 +266,9 @@ function CreateBlog(props) {
                                             onChange={handleAppChange}
                                             label="Apps"
                                         >
-                                            <MenuItem value={1}>TableVision</MenuItem>
-                                            <MenuItem value={2}>PREP</MenuItem>
-                                            <MenuItem value={3}>MyAthina</MenuItem>
+                                            {apps.length > 0 && apps.map((item, index) => (
+                                                <MenuItem key={index} value={item.id}>{item.app_name}</MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                 </Grid>
@@ -469,4 +471,12 @@ function CreateBlog(props) {
     )
 }
 
-export default CreateBlog;
+
+const mapStateToProps = (state) => {
+    return {
+        appsList: state.lists.appsList,
+        categoryList: state.lists.categoryList
+    };
+}
+
+export default connect(mapStateToProps)(CreateBlog);

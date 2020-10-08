@@ -19,18 +19,113 @@ const apps = {
     ]
 }
 
-export const getAppsList = (successCB, failureCB) => {
-
-    let url = apiConfig.apps.getAppsList;
-
-    axios.get(url).then((response) => {
-        successCB(response.data)
-    }).catch((error) => {
-        successCB(apps)
-        //failureCB(error)
-    })
-
+const postCategoryDataResp = {
+    id: 6,
+    categoryTitle: 'New Category',
+    slug: 'new-category'
 }
+
+export const postCategoryData = (payload) => {
+    let url = apiConfig.blog.createCategory;
+    return (dispatch) => {
+        return axios.post(url, payload)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "CREATE_CATEGORY_DATA",
+                    payload: postCategoryDataResp
+                })
+            })
+            .catch(error => {
+                dispatch({
+                    type: "CREATE_CATEGORY_DATA",
+                    payload: postCategoryDataResp
+                })
+            });
+    };
+}
+
+export const getAppsList = () => {
+    let url = apiConfig.apps.getAppsList;
+    return (dispatch) => {
+        return axios.get(url)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "FETCH_APPS_LIST",
+                    payload: apps.results
+                })
+            })
+            .catch(error => {
+                // throw (error);
+                dispatch({
+                    type: "FETCH_APPS_LIST",
+                    payload: apps.results
+                })
+            });
+    };
+}
+
+export const categoryListDataNew = [{
+    id: 1,
+    name: "TableVision",
+    categories: [{
+        id: 1,
+        categoryTitle: 'Programming',
+        slug: 'programming'
+    }, {
+        id: 2,
+        categoryTitle: 'Leadership',
+        slug: 'leadership'
+    }]
+},
+{
+    id: 2,
+    name: "PREP",
+    categories: [{
+        id: 1,
+        categoryTitle: 'Programming',
+        slug: 'programming'
+    }, {
+        id: 2,
+        categoryTitle: 'Leadership',
+        slug: 'leadership'
+    }, {
+        id: 3,
+        categoryTitle: 'Marketing',
+        slug: 'marketing'
+    }, {
+        id: 4,
+        categoryTitle: 'General',
+        slug: 'general'
+    }, {
+        id: 5,
+        categoryTitle: 'Computer Science',
+        slug: 'computer-science'
+    }]
+},
+{
+    id: 3,
+    name: "MyAthina",
+    categories: [{
+        id: 1,
+        categoryTitle: 'Programming',
+        slug: 'programming'
+    }, {
+        id: 2,
+        categoryTitle: 'Leadership',
+        slug: 'leadership'
+    }, {
+        id: 3,
+        categoryTitle: 'Marketing',
+        slug: 'marketing'
+    }]
+}
+]
 
 export const categoryListData = {
     results: [{
@@ -57,18 +152,32 @@ export const categoryListData = {
     ]
 }
 
-export const getCategoryList = (payload, successCB, failureCB) => {
-    let url = apiConfig.apps.getCategoryList;
+export const getCategoryList = (payload) => {
+    let url = apiConfig.blog.getCategoryList;
     let paramObj = {
-        app_id: payload.appId
+        app_id: payload
     }
-    axios.get(url, paramObj).then((response) => {
-        successCB(response.data)
-    }).catch((error) => {
-        successCB(categoryListData)
-        //failureCB(error)
-    })
+    return (dispatch) => {
+        return axios.get(url, paramObj)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "FETCH_CATEGORY_LIST",
+                    payload: categoryListDataNew
+                })
+            })
+            .catch(error => {
+                dispatch({
+                    type: "FETCH_CATEGORY_LIST",
+                    payload: categoryListDataNew
+                })
+            });
+    };
 }
+
+
 
 
 export const blogListData = {

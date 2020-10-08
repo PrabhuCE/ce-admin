@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
@@ -29,9 +29,11 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import TextField from '@material-ui/core/TextField';
 import ListItemAvatar from '@material-ui/core/ListItemAvatar';
 import Avatar from '@material-ui/core/Avatar';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { blogListData, categoryListData, apps } from '../../Store/Blog/actionCreator'
+import { blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData } from '../../Store/Blog/actionCreator'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -171,18 +173,40 @@ const useStyles = makeStyles((theme) => ({
 
 function BlogList(props) {
     const classes = useStyles();
+    const [appsList, setAppsList] = useState(props.appsList && props.appsList || [])
     const [blogList, setBlogList] = useState(blogListData.results || []);
-    const [catList, setCatList] = useState(categoryListData.results || []);
-    const [catName, setCatName] = useState(blogListData.categoryName)
     const [app, setApp] = useState(1);
+    const [catList, setCatList] = useState([]);
+    const [catName, setCatName] = useState(blogListData.categoryName)
     const [catSelApp, setCatSelApp] = useState(1);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [appName, setAppName] = useState('PREP');
     const [catEditFlag, setCatEditFlag] = useState(false);
+    const [createCatLoading, setCreateCatLoading] = useState(false);
 
     const editBlogContent = () => {
         props.history.push('/createBlog?blog_id=123')
     }
+
+    useEffect(() => {
+        props.getAppsList();
+        props.getCategoryList(1);
+    }, [])
+
+    useEffect(() => {
+        if (props.postCategoryAPIStatus) {
+            setCreateCatLoading(false)
+            setDialogOpen(false)
+        }
+    }, [props.postCategoryAPIStatus])
+
+    useEffect(() => {
+        if (props.categoryList.length > 0) {
+            let categoryObj = props.categoryList.find((item) => (item.id === 1));
+            console.log("test", categoryObj)
+            setCatList(categoryObj.categories);
+        }
+    }, [props.appsList])
 
     const handleDialogOpen = (type) => {
         if (type === 'create') {
@@ -194,6 +218,15 @@ function BlogList(props) {
         }
 
     };
+
+    const handleCreateCategory = () => {
+        let payload = {
+            id: 6, categoryTitle: 'New Category',
+            slug: 'new-category'
+        };
+        setCreateCatLoading(true);
+        props.postCategoryData(payload);
+    }
 
     const handleDialogClose = () => {
         setDialogOpen(false);
@@ -207,6 +240,10 @@ function BlogList(props) {
         setApp(event.target.value);
         let appName = event.target.value === 1 ? 'PREP' : event.target.value === 2 ? 'MyAthina' : 'TableVision';
         setAppName(appName);
+        if (props.categoryList.length > 0) {
+            let categoryObj = props.categoryList.find((item) => (item.id === event.target.value));
+            setCatList(categoryObj.categories);
+        }
     };
 
     const renderBlogCard = (item) => {
@@ -246,13 +283,6 @@ function BlogList(props) {
                     <Button color="primary" variant='outlined' onClick={editBlogContent}>
                         Edit Blog
                     </Button>
-
-                    {/* <IconButton
-                        aria-label="Edit Blog"
-                        className={classes.icnBtn}
-                    >
-                        <EditIcon className={classes.editIcon} />
-                    </IconButton> */}
                 </CardActions>
 
             </Card >
@@ -274,17 +304,16 @@ function BlogList(props) {
                                 onChange={handleChange}
                                 label="Age"
                             >
-
-                                <MenuItem value={1}>PREP</MenuItem>
-                                <MenuItem value={2}>MyAthina</MenuItem>
-                                <MenuItem value={3}>TableVision</MenuItem>
+                                {appsList.length > 0 && appsList.map((item, index) => (
+                                    <MenuItem key={index} value={item.id}>{item.app_name}</MenuItem>
+                                ))}
                             </Select>
                         </FormControl>
                     </Paper>
                     <Paper elevation={3} className={classes.leftPaper}>
                         <List component="nav" aria-label="blog categories">
                             {catList && catList.length > 0 && catList.map((item, index) => {
-                                return (<React.Fragment>
+                                return (<React.Fragment key={index}>
                                     <div className={classes.listRoot}>
                                         <ListItem button key={index}>
                                             <ListItemText primary={
@@ -331,7 +360,7 @@ function BlogList(props) {
                     <Grid container spacing={2}>
                         {blogList.length > 0 && blogList.map((item, index) => {
                             return (
-                                <Grid item xs={12} sm={12} md={3} lg={3}>
+                                <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
                                     {renderBlogCard(item)}
                                 </Grid>)
                         })}
@@ -366,10 +395,9 @@ function BlogList(props) {
                                             onChange={handleCatAppChange}
                                             label="App"
                                         >
-
-                                            <MenuItem value={1}>PREP</MenuItem>
-                                            <MenuItem value={2}>MyAthina</MenuItem>
-                                            <MenuItem value={3}>TableVision</MenuItem>
+                                            {appsList.length > 0 && appsList.map((item, index) => (
+                                                <MenuItem key={index} value={item.id}>{item.app_name}</MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                     <TextField className={classes.catTitle} variant='outlined' label="Category Title">
@@ -383,7 +411,7 @@ function BlogList(props) {
                         <Button color="primary" variant='outlined'>
                             Update
                     </Button>
-                        : <Button color="primary" variant='outlined'>
+                        : <Button onClick={() => { handleCreateCategory() }} disabled={createCatLoading} color="primary" variant='outlined'>
                             Submit
                             </Button>}
                     <Button onClick={handleDialogClose} color="primary" variant='outlined'>
@@ -394,4 +422,21 @@ function BlogList(props) {
         </div >)
 }
 
-export default BlogList;
+const mapDispatchToProps = (dispatch) => ({
+    getAppsList: bindActionCreators(getAppsList, dispatch),
+    getCategoryList: bindActionCreators(getCategoryList, dispatch),
+    postCategoryData: bindActionCreators(postCategoryData, dispatch)
+})
+
+const mapStateToProps = (state) => {
+    return {
+        appsList: state.lists.appsList,
+        categoryList: state.lists.categoryList,
+        appsAPIStatus: state.lists.appsAPIStatus,
+        categoryAPIStatus: state.lists.categoryAPIStatus,
+        postCategoryAPIStatus: state.lists.postCategoryAPIStatus
+    };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BlogList);
+

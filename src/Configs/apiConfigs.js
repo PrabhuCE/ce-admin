@@ -1,4 +1,5 @@
 import { getProductDomain } from "../Helpers/basics";
+import { getCategoryList } from "../Store/Blog/actionCreator";
 
 const base_domain = "https://cmns.api.moocpedia.com/";
 
@@ -49,6 +50,7 @@ export const apiConfig = {
   },
   blog: {
     getCategoryList: `${base_domain}ceadmin/blog/categories`,
+    createCategory: `${base_domain}ceadmin/blog/createCategory`,
     getBlogListData: `${base_domain}ceadmin/blog/categories`,
     getBlogContent: `${base_domain}ceadmin/blog/categories`
   }
