@@ -69,6 +69,7 @@ export default function Tables(props) {
   };
 
   const handleClickSearch = (event) => {
+    event.preventDefault();
     fetchTableData(tableCode, 0);
   };
 
@@ -375,28 +376,38 @@ export default function Tables(props) {
           </FormControl>
         </Grid>
         <Grid item lg={3}>
-          <FormControl style={{ marginTop: "0.5rem" }} variant="outlined">
-            <InputLabel htmlFor="outlined-adornment-password">
-              Search
+          <form
+            id="main"
+            tabIndex="-1"
+            className={classes.form}
+            noValidate
+            autoComplete="off"
+            onSubmit={handleClickSearch}
+          >
+            <FormControl style={{ marginTop: "0.5rem" }} variant="outlined">
+
+              <InputLabel htmlFor="outlined-adornment-password">
+                Search
             </InputLabel>
-            <OutlinedInput
-              id="outlined-adornment-password"
-              value={searchValue}
-              onChange={handleSearchChange}
-              endAdornment={
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleClickSearch}
-                    edge="end"
-                  >
-                    <SearchIcon />
-                  </IconButton>
-                </InputAdornment>
-              }
-              labelWidth={70}
-            />
-          </FormControl>
+              <OutlinedInput
+                id="outlined-adornment-password"
+                value={searchValue}
+                onChange={handleSearchChange}
+                endAdornment={
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleClickSearch}
+                      edge="end"
+                    >
+                      <SearchIcon />
+                    </IconButton>
+                  </InputAdornment>
+                }
+                labelWidth={70}
+              />
+            </FormControl>
+          </form>
         </Grid>
       </Grid>
       <Grid container spacing={1}>
