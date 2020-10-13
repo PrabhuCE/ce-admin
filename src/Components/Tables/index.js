@@ -11,6 +11,7 @@ import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LinkIcon from '@material-ui/icons/Link';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
+
 import ImageIcon from "@material-ui/icons/Image";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
@@ -310,6 +311,7 @@ export default function Tables(props) {
         </TableContainer>
         {tableData.length > 0 && (
           <TablePagination
+            rowsPerPageOptions={[]}
             component="div"
             count={totalRecCount}
             rowsPerPage={10}
