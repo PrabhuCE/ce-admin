@@ -11,7 +11,10 @@ import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
 import LinkIcon from '@material-ui/icons/Link';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
-
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import FilterListIcon from '@material-ui/icons/FilterList';
 import ImageIcon from "@material-ui/icons/Image";
 import Button from "@material-ui/core/Button";
 import Divider from "@material-ui/core/Divider";
@@ -46,7 +49,7 @@ import { getTablesList, getTableData } from "../../Store/Data/actionCreator";
 export default function Tables(props) {
   const classes = useStyles();
   const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(25);
   const [selectedTable, setSelectedTable] = useState();
   const [tablesList, setTablesList] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -64,6 +67,11 @@ export default function Tables(props) {
   const [searchValue, setSearchValue] = useState("");
   const [product, setProduct] = useState();
   const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState([]);
+  const [filterItems, setFilterItems] = useState({});
+  const [selectedFilterItem, setSelectedFilterItem] = useState("");
+  const [selectedColumn, setSelectedColumn] = useState("");
+  const [sortType, setSortType] = useState("")
 
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
@@ -71,6 +79,8 @@ export default function Tables(props) {
 
   const handleClickSearch = (event) => {
     event.preventDefault();
+    setPage(0);
+    setOffset(0);
     fetchTableData(tableCode, 0);
   };
 
@@ -144,6 +154,7 @@ export default function Tables(props) {
     setColumnsList([]);
     setLoading(false)
   };
+
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -242,17 +253,28 @@ export default function Tables(props) {
   };
 
   const fetchTableData = (code, offsetVal) => {
-    setTableData([]);
-    let payload = {
-      table_id: code,
-      tenant_id: selectedTenantId,
-      offset: offsetVal,
-      search: searchValue,
-      limit: 10,
-    };
-    setLoading(true);
-
-    getTableData(payload, successCallBack, failureCallBack);
+    if (code) {
+      let sortBy = {};
+      if (sortType !== "" && selectedColumn) {
+        sortBy["column"] = sortType === 'asc' ? selectedColumn : `-${selectedColumn}`
+      }
+      setTableData([]);
+      let payload = {
+        table_id: code,
+        tenant_id: selectedTenantId,
+        offset: offsetVal,
+        search: searchValue,
+        filter: filterItems,
+        sorting: sortBy,
+        limit: 25,
+      };
+      setLoading(true);
+      getTableData(payload, successCallBack, failureCallBack);
+    } else {
+      setTableData([]);
+      setColumnsList([]);
+      setTotalRecCount(0);
+    }
   };
 
   const successCallBack = (res) => {
@@ -271,13 +293,45 @@ export default function Tables(props) {
   };
 
   const handleSelectChange = (event) => {
-    // setSearchValue("");
     setSelectedItem(event.target.value);
+    let tableObj = tablesList.find((item) => (item.code === event.target.value));
+    setFilters(tableObj && tableObj.filters && tableObj.filters.length > 0 ? tableObj.filters : []);
     setTableCode(event.target.value);
     setPage(0);
     setOffset(0);
     fetchTableData(event.target.value, 0);
   };
+
+  const handleFilterChange = (event, item) => {
+
+    setSelectedFilterItem(event.target.value, item)
+    setFilterItems({ ...filterItems, [item]: event.target.value })
+  }
+
+  useEffect(() => {
+    setPage(0);
+    setOffset(0);
+    fetchTableData(tableCode, 0);
+  }, [filterItems])
+
+
+  const handleSortChange = (event) => {
+    setSortType(event.target.value);
+  }
+
+  useEffect(() => {
+    if (sortType) {
+      setPage(0);
+      setOffset(0);
+      fetchTableData(tableCode, 0);
+    }
+  }, [sortType])
+
+  const handleSortingColumnChange = (event) => {
+    setSelectedColumn(event.target.value);
+  };
+
+
 
   const renderTable = () => {
     return (
@@ -314,7 +368,7 @@ export default function Tables(props) {
             rowsPerPageOptions={[]}
             component="div"
             count={totalRecCount}
-            rowsPerPage={10}
+            rowsPerPage={rowsPerPage}
             page={page}
             onChangePage={handleChangePage}
           />
@@ -328,8 +382,8 @@ export default function Tables(props) {
       <Header />
       <Grid container spacing={3}>
         {product == "MyAthina" && (
-          <Grid item lg={3}>
-            <FormControl variant="outlined" className={classes.formControl}>
+          <Grid item xs={12} sm={4} md={3} lg={2}>
+            <FormControl className={classes.formControl}>
               <InputLabel id="demo-simple-select-outlined-label">
                 Tenant
               </InputLabel>
@@ -356,8 +410,8 @@ export default function Tables(props) {
             </FormControl>
           </Grid>
         )}
-        <Grid item lg={3}>
-          <FormControl variant="outlined" className={classes.formControl}>
+        <Grid item xs={12} sm={4} md={3} lg={2}>
+          <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-outlined-label">
               Tables
             </InputLabel>
@@ -377,7 +431,7 @@ export default function Tables(props) {
             </Select>
           </FormControl>
         </Grid>
-        <Grid item lg={3}>
+        <Grid item xs={12} sm={4} md={3} lg={4}>
           <form
             id="main"
             tabIndex="-1"
@@ -386,8 +440,7 @@ export default function Tables(props) {
             autoComplete="off"
             onSubmit={handleClickSearch}
           >
-            <FormControl style={{ marginTop: "0.5rem" }} variant="outlined">
-
+            <FormControl style={{ marginTop: "0.5rem", width: '100%' }} variant="outlined" >
               <InputLabel htmlFor="outlined-adornment-password">
                 Search
             </InputLabel>
@@ -411,10 +464,90 @@ export default function Tables(props) {
             </FormControl>
           </form>
         </Grid>
+        <Grid item xs={12} sm={4} md={3} lg={2}>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-outlined-label">
+              Sort By Column
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-outlined-label"
+              id="demo-simple-select-outlined"
+              value={selectedColumn}
+              onChange={handleSortingColumnChange}
+              label="Columns"
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              {columnsList.map((item, index) => {
+                return <MenuItem key={index} value={item.col_name}>{item.label}</MenuItem>;
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={12} sm={4} md={3} lg={2}>
+          <FormControl className={classes.formControl}>
+            <InputLabel id="demo-simple-select-outlined-label">
+              Sort By
+            </InputLabel>
+            <Select
+              labelId="demo-simple-select-outlined-label"
+              id="demo-simple-select-outlined"
+              value={sortType}
+              disabled={columnsList.length > 0 ? false : true}
+              onChange={handleSortChange}
+              label="Sort By"
+            >
+              <MenuItem value="">
+                <em>None</em>
+              </MenuItem>
+              <MenuItem value="asc">ASC</MenuItem>
+              <MenuItem value="desc">DESC</MenuItem>
+            </Select>
+          </FormControl>
+        </Grid>
       </Grid>
+      <Divider />
+      <Grid container spacing={1}>
+        <Grid item xs={12} sm={12} md={12} lg={12}>
+          <div style={{ display: 'flex' }}>
+            {filters.length > 0 && <div style={{ textAlign: 'initial', paddingTop: '1rem' }}>
+              Filters:
+            </div>}
+            <React.Fragment>
+              {filters.length > 0 ?
+                <Grid container spacing={2}>
+                  {filters.map((item, index) => (
+                    <Grid key={index} item xs={12} sm={4} md={3} lg={2}>
+                      <FormControl className={classes.formControl}>
+                        <InputLabel>
+                          {item.name}
+                        </InputLabel>
+                        <Select
+                          label={item.name}
+                          value={selectedFilterItem}
+                          onChange={(e) => { handleFilterChange(e, item.name) }}
+                        >
+                          <MenuItem value="">
+                            <div className={classes.sortLabel}>None</div>
+                          </MenuItem>
+                          {item.values.map((item, menuIndex) => {
+                            return <MenuItem key={menuIndex} value={item}><div className={classes.sortLabel}>{item}</div></MenuItem>;
+                          })}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+                  ))}
+                </Grid> : <div style={{ textAlign: 'initial', padding: '1rem' }}>No filters available for current selection.</div>}
+            </React.Fragment>
+          </div>
+
+
+        </Grid>
+      </Grid>
+      <Divider />
       <Grid container spacing={1}>
         {/* <Grid item xs={12} sm={12} md={2} lg={2}>
-
           <Paper>
             {tablesList.length > 0 ?
               <React.Fragment>
@@ -466,14 +599,15 @@ export default function Tables(props) {
 
 const useStyles = makeStyles((theme) => ({
   appsContainer: {
-    marginTop: "3rem",
+    marginTop: "1.5rem",
   },
   downloadIcon: {
     cursor: "pointer",
   },
   formControl: {
-    margin: theme.spacing(1),
-    minWidth: 220,
+    margin: "10px",
+    minWidth: 180,
+    width: "180px",
   },
   thead: {
     background: "#ebebeb",
@@ -491,5 +625,8 @@ const useStyles = makeStyles((theme) => ({
     position: "absolute",
     top: 20,
     width: 1,
+  },
+  sortLabel: {
+    fontSize: "12px"
   },
 }));
