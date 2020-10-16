@@ -33,7 +33,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData } from '../../Store/Blog/actionCreator'
+import { blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData, resetCreateCategory } from '../../Store/Blog/actionCreator'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -177,8 +177,10 @@ function BlogList(props) {
     const [blogList, setBlogList] = useState(blogListData.results || []);
     const [app, setApp] = useState(1);
     const [catList, setCatList] = useState([]);
-    const [catName, setCatName] = useState(blogListData.categoryName)
+    const [catName, setCatName] = useState('')
     const [catSelApp, setCatSelApp] = useState(1);
+    const [selectedCatTitle, setSelectedCatTitle] = useState('');
+    const [selectedCat, setSelectedCat] = useState(1);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [appName, setAppName] = useState('PREP');
     const [catEditFlag, setCatEditFlag] = useState(false);
@@ -186,6 +188,14 @@ function BlogList(props) {
 
     const editBlogContent = () => {
         props.history.push('/createBlog?blog_id=123')
+    }
+
+    const handleCategoryChange = (e) => {
+        setCatName(e.target.value)
+    }
+
+    const handleCatSelection = (item) => {
+        setSelectedCatTitle(item.categoryTitle);
     }
 
     useEffect(() => {
@@ -197,16 +207,20 @@ function BlogList(props) {
         if (props.postCategoryAPIStatus) {
             setCreateCatLoading(false)
             setDialogOpen(false)
+            setCatName('');
         }
     }, [props.postCategoryAPIStatus])
 
     useEffect(() => {
         if (props.categoryList.length > 0) {
             let categoryObj = props.categoryList.find((item) => (item.id === 1));
-            console.log("test", categoryObj)
             setCatList(categoryObj.categories);
+            console.log("test", categoryObj);
+            setSelectedCat(categoryObj.categories[0].id)
+            setSelectedCatTitle(categoryObj.categories[0].categoryTitle)
         }
-    }, [props.appsList])
+    }, [props.categoryList])
+
 
     const handleDialogOpen = (type) => {
         if (type === 'create') {
@@ -220,8 +234,11 @@ function BlogList(props) {
     };
 
     const handleCreateCategory = () => {
+        props.resetCreateCategory();
         let payload = {
-            id: 6, categoryTitle: 'New Category',
+            id: catList.length + 1,
+            appId: catSelApp,
+            categoryTitle: catName,
             slug: 'new-category'
         };
         setCreateCatLoading(true);
@@ -238,10 +255,12 @@ function BlogList(props) {
 
     const handleChange = (event) => {
         setApp(event.target.value);
+        console.log("sds", event.target.value);
         let appName = event.target.value === 1 ? 'PREP' : event.target.value === 2 ? 'MyAthina' : 'TableVision';
         setAppName(appName);
         if (props.categoryList.length > 0) {
             let categoryObj = props.categoryList.find((item) => (item.id === event.target.value));
+            console.log("sds", categoryObj);
             setCatList(categoryObj.categories);
         }
     };
@@ -315,7 +334,7 @@ function BlogList(props) {
                             {catList && catList.length > 0 && catList.map((item, index) => {
                                 return (<React.Fragment key={index}>
                                     <div className={classes.listRoot}>
-                                        <ListItem button key={index}>
+                                        <ListItem button onClick={() => handleCatSelection(item)} key={index}>
                                             <ListItemText primary={
                                                 <div className={classes.catName}>
                                                     {item.categoryTitle}
@@ -340,7 +359,7 @@ function BlogList(props) {
                         <Grid item xs={12} sm={12} md={12} lg={12}>
                             <Paper elevation={2} className={classes.categoryCtr}>
                                 <div className={classes.catName}>
-                                    Category -&nbsp;{catName}
+                                    Category -&nbsp;{selectedCatTitle}
                                 </div>
                                 <div className={classes.editIconCtr}>
                                     <Tooltip title="Add Category">
@@ -381,10 +400,9 @@ function BlogList(props) {
                             {catEditFlag ?
                                 <React.Fragment>
                                     <div className={classes.selCatName}>{appName}</div>
-                                    <TextField className={classes.catTitle} variant='outlined' value={catName} label="Category Title">
+                                    <TextField className={classes.catTitle} variant='outlined' value={catName} onChange={handleCategoryChange} label="Category Title">
                                     </TextField>
                                 </React.Fragment>
-
                                 : <React.Fragment>
                                     <FormControl variant="outlined" className={classes.formControl}>
                                         <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>
@@ -400,7 +418,7 @@ function BlogList(props) {
                                             ))}
                                         </Select>
                                     </FormControl>
-                                    <TextField className={classes.catTitle} variant='outlined' label="Category Title">
+                                    <TextField className={classes.catTitle} variant='outlined' value={catName} onChange={handleCategoryChange} label="Category Title">
                                     </TextField>
                                 </React.Fragment>}
                         </Grid>
@@ -425,7 +443,8 @@ function BlogList(props) {
 const mapDispatchToProps = (dispatch) => ({
     getAppsList: bindActionCreators(getAppsList, dispatch),
     getCategoryList: bindActionCreators(getCategoryList, dispatch),
-    postCategoryData: bindActionCreators(postCategoryData, dispatch)
+    postCategoryData: bindActionCreators(postCategoryData, dispatch),
+    resetCreateCategory: bindActionCreators(resetCreateCategory, dispatch)
 })
 
 const mapStateToProps = (state) => {

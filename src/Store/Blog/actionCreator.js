@@ -19,33 +19,7 @@ const apps = {
     ]
 }
 
-const postCategoryDataResp = {
-    id: 6,
-    categoryTitle: 'New Category',
-    slug: 'new-category'
-}
 
-export const postCategoryData = (payload) => {
-    let url = apiConfig.blog.createCategory;
-    return (dispatch) => {
-        return axios.post(url, payload)
-            .then(response => {
-                return response.data
-            })
-            .then(data => {
-                dispatch({
-                    type: "CREATE_CATEGORY_DATA",
-                    payload: postCategoryDataResp
-                })
-            })
-            .catch(error => {
-                dispatch({
-                    type: "CREATE_CATEGORY_DATA",
-                    payload: postCategoryDataResp
-                })
-            });
-    };
-}
 
 export const getAppsList = () => {
     let url = apiConfig.apps.getAppsList;
@@ -152,6 +126,15 @@ export const categoryListData = {
     ]
 }
 
+export const resetCreateCategory = () => {
+    return (dispatch) => {
+        dispatch({
+            type: "RESET_CREATE_CATEGORY",
+            payload: ''
+        })
+    }
+}
+
 export const getCategoryList = (payload) => {
     let url = apiConfig.blog.getCategoryList;
     let paramObj = {
@@ -178,6 +161,36 @@ export const getCategoryList = (payload) => {
 }
 
 
+export const postCategoryData = (payload) => {
+
+    let url = apiConfig.blog.createCategory;
+    var categoryList = categoryListDataNew.find(item => item.id === payload.appId);
+    // console.log("console", categoryList);
+    // categoryList.categories.push(payload);
+    // var categoryListIndex = categoryListDataNew.findIndex(item => item.id === payload.appId);
+    // if (categoryListIndex != undefined) {
+    //     categoryListDataNew[categoryListIndex].categories = [];
+    // }
+    // categoryListDataNew[categoryListIndex].categories = categoryList;
+    return (dispatch) => {
+        return axios.post(url, payload)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "CREATE_CATEGORY_DATA",
+                    payload: categoryList
+                })
+            })
+            .catch(error => {
+                dispatch({
+                    type: "CREATE_CATEGORY_DATA",
+                    payload: categoryList
+                })
+            });
+    };
+}
 
 
 export const blogListData = {

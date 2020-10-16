@@ -13,20 +13,30 @@ export const listData = (state = initState, action) => {
             return {
                 ...state,
                 appsList: action.payload,
-                appsAPIStatus: true
+                appsAPIStatus: true,
+                categoryAPIStatus: false,
+                postCategoryAPIStatus: false,
+
             }
         case 'FETCH_CATEGORY_LIST':
             return {
                 ...state,
+                categoryList: action.payload,
+                appsAPIStatus: false,
                 categoryAPIStatus: true,
-                categoryList: action.payload
+                postCategoryAPIStatus: false,
             }
         case 'CREATE_CATEGORY_DATA':
-            let categories = state.categoryList.push(action.payload);
             return {
                 ...state,
+                categoryList: action.payload,
+                appsAPIStatus: false,
+                categoryAPIStatus: false,
                 postCategoryAPIStatus: true,
-                categoryList: categories
+            }
+        case 'RESET_CREATE_CATEGORY':
+            return {
+                ...state, postCategoryAPIStatus: false,
             }
         default:
             return initState

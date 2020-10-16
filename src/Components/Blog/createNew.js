@@ -454,7 +454,7 @@ function CreateBlog(props) {
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <Button variant="contained" color="primary" className={classes.uploadBtn}>
                                         Submit
-                        </Button>
+                                    </Button>
                                 </Grid>
                             </Grid>
                         </Paper>
