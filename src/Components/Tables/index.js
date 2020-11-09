@@ -464,7 +464,7 @@ export default function Tables(props) {
             </FormControl>
           </form>
         </Grid>
-        <Grid item xs={12} sm={4} md={3} lg={2}>
+        {/* <Grid item xs={12} sm={4} md={3} lg={2}>
           <FormControl className={classes.formControl}>
             <InputLabel id="demo-simple-select-outlined-label">
               Sort By Column
@@ -505,7 +505,7 @@ export default function Tables(props) {
               <MenuItem value="desc">DESC</MenuItem>
             </Select>
           </FormControl>
-        </Grid>
+        </Grid> */}
       </Grid>
       <Divider />
       <Grid container spacing={1}>
