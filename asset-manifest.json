@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/ce-admin/static/css/main.beee7a75.chunk.css",
-    "main.js": "/ce-admin/static/js/main.3b28bc07.chunk.js",
-    "main.js.map": "/ce-admin/static/js/main.3b28bc07.chunk.js.map",
+    "main.js": "/ce-admin/static/js/main.84d7e019.chunk.js",
+    "main.js.map": "/ce-admin/static/js/main.84d7e019.chunk.js.map",
     "runtime-main.js": "/ce-admin/static/js/runtime-main.08b984eb.js",
     "runtime-main.js.map": "/ce-admin/static/js/runtime-main.08b984eb.js.map",
     "static/js/2.36ba0325.chunk.js": "/ce-admin/static/js/2.36ba0325.chunk.js",
     "static/js/2.36ba0325.chunk.js.map": "/ce-admin/static/js/2.36ba0325.chunk.js.map",
     "index.html": "/ce-admin/index.html",
-    "precache-manifest.332ee2ce5dc3c8ca113b6d72ab83d654.js": "/ce-admin/precache-manifest.332ee2ce5dc3c8ca113b6d72ab83d654.js",
+    "precache-manifest.bd9581016a8315907933d6b9bc6377b9.js": "/ce-admin/precache-manifest.bd9581016a8315907933d6b9bc6377b9.js",
     "service-worker.js": "/ce-admin/service-worker.js",
     "static/css/main.beee7a75.chunk.css.map": "/ce-admin/static/css/main.beee7a75.chunk.css.map",
     "static/js/2.36ba0325.chunk.js.LICENSE.txt": "/ce-admin/static/js/2.36ba0325.chunk.js.LICENSE.txt",
@@ -27,6 +27,6 @@
     "static/js/runtime-main.08b984eb.js",
     "static/js/2.36ba0325.chunk.js",
     "static/css/main.beee7a75.chunk.css",
-    "static/js/main.3b28bc07.chunk.js"
+    "static/js/main.84d7e019.chunk.js"
   ]
 }
