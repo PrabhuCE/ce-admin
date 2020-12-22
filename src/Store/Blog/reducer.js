@@ -2,6 +2,7 @@ const initState = {
     appsList: [],
     categoryList: [],
     appsAPIStatus: false,
+    newCategory: [],
     categoryAPIStatus: false,
     postCategoryAPIStatus: false
 }
@@ -29,8 +30,8 @@ export const listData = (state = initState, action) => {
         case 'CREATE_CATEGORY_DATA':
             return {
                 ...state,
-                categoryList: action.payload,
-                appsAPIStatus: false,
+                newCategory: action.payload,
+                //appsAPIStatus: false,
                 categoryAPIStatus: false,
                 postCategoryAPIStatus: true,
             }

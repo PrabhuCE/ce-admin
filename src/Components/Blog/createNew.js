@@ -79,6 +79,7 @@ function CreateBlog(props) {
     const classes = useStyles();
     const [category, setCategory] = useState('');
     const [apps, setApps] = useState(props.appsList && props.appsList || []);
+    const [categories, setCategories] = useState([]);
     const [title, setTitle] = useState('');
     const [urlSlug, setUrlSlug] = useState();
     const [duration, setDuration] = useState();
@@ -114,6 +115,13 @@ function CreateBlog(props) {
     })
 
     useEffect(() => {
+        if (props.categoryList.length > 0) {
+            let categoryArr = props.categoryList.filter((item) => (item.application.id === 1));
+            setCategories(categoryArr);
+        }
+    }, [props.categoryList])
+
+    useEffect(() => {
         let urlParams = new URLSearchParams(window.location.search);
         let paramVal = urlParams.get("blog_id");
         if (paramVal) {
@@ -142,6 +150,11 @@ function CreateBlog(props) {
     };
     const handleAppChange = (event) => {
         setApp(event.target.value);
+        console.log("event.target.value")
+        if (props.categoryList.length > 0) {
+            let categoryArr = props.categoryList.filter((item) => (item.application.id === event.target.value));
+            setCategories(categoryArr);
+        }
     };
 
     const handleTitleChange = (event) => {
@@ -282,9 +295,9 @@ function CreateBlog(props) {
                                             onChange={handleChange}
                                             label="Category"
                                         >
-                                            <MenuItem value={1}>Programming</MenuItem>
-                                            <MenuItem value={2}>Design</MenuItem>
-                                            <MenuItem value={3}>Dev-Ops</MenuItem>
+                                            {categories.length > 0 && categories.map((item, index) => (
+                                                <MenuItem key={index} value={item.id}>{item.category_name}</MenuItem>
+                                            ))}
                                         </Select>
                                     </FormControl>
                                 </Grid>

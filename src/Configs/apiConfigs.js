@@ -46,11 +46,11 @@ export const apiConfig = {
     getTenants: `${product_domain}ceadmin/component/tenants/`,
   },
   apps: {
-    getAppsList: `${base_domain}accounts/apps`
+    getAppsList: `${base_domain}blogs/application/`
   },
   blog: {
-    getCategoryList: `${base_domain}ceadmin/blog/categories`,
-    createCategory: `${base_domain}ceadmin/blog/createCategory`,
+    getCategoryList: `${base_domain}blogs/category/`,
+    createCategory: `${base_domain}blogs/category/`,
     getBlogListData: `${base_domain}ceadmin/blog/categories`,
     getBlogContent: `${base_domain}ceadmin/blog/categories`
   }

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
+import CircularProgress from '@material-ui/core/CircularProgress';
 import Card from "@material-ui/core/Card";
 import CardContent from "@material-ui/core/CardContent";
 import CardMedia from '@material-ui/core/CardMedia';
@@ -173,12 +174,14 @@ const useStyles = makeStyles((theme) => ({
 
 function BlogList(props) {
     const classes = useStyles();
-    const [appsList, setAppsList] = useState(props.appsList && props.appsList || [])
+    const [appsFetch, setAppsFetch] = useState(true);
+    const [categoryFetch, setCategoryFetch] = useState(true);
+    const [appsList, setAppsList] = useState([])
     const [blogList, setBlogList] = useState(blogListData.results || []);
-    const [app, setApp] = useState(1);
+    const [app, setApp] = useState(0);
     const [catList, setCatList] = useState([]);
     const [catName, setCatName] = useState('')
-    const [catSelApp, setCatSelApp] = useState(1);
+    const [catSelApp, setCatSelApp] = useState(0);
     const [selectedCatTitle, setSelectedCatTitle] = useState('');
     const [selectedCat, setSelectedCat] = useState(1);
     const [dialogOpen, setDialogOpen] = useState(false);
@@ -204,6 +207,40 @@ function BlogList(props) {
     }, [])
 
     useEffect(() => {
+        setAppsList(props.appsList);
+        setAppsFetch(false);
+        setApp(props.appsList.length > 0 && props.appsList[0].id)
+    }, [props.appsList])
+
+    useEffect(() => {
+        setCategoryFetch(false);
+        if (props.categoryList.length > 0 && appsList.length > 0) {
+            let categoryObj = props.categoryList.filter((item) => (item.application.id === appsList[0].id));
+            setCatList(categoryObj);
+            setSelectedCat(categoryObj.length > 0 && categoryObj[0].id)
+            setSelectedCatTitle(categoryObj.length > 0 && categoryObj[0].category_name)
+        }
+    }, [props.categoryList])
+
+    useEffect(() => {
+        if (props.categoryList.length > 0 && appsList.length > 0) {
+            let catList = props.categoryList;
+            catList.push(props.newCategory.data);
+            let categoryArr = catList.filter((item) => (item.application.id === appsList[0].id));
+            setCatList(categoryArr);
+            setSelectedCat(categoryArr.length > 0 && categoryArr[0].id)
+            setSelectedCatTitle(categoryArr.length > 0 && categoryArr[0].category_name)
+        } else {
+            let categoryArr = [];
+            categoryArr.push(props.newCategory.data)
+            setCatList(categoryArr);
+            setSelectedCat(categoryArr.length > 0 && categoryArr[0].id)
+            setSelectedCatTitle(categoryArr.length > 0 && categoryArr[0].category_name)
+        }
+    }, [props.newCategory])
+
+    useEffect(() => {
+
         if (props.postCategoryAPIStatus) {
             setCreateCatLoading(false)
             setDialogOpen(false)
@@ -211,18 +248,9 @@ function BlogList(props) {
         }
     }, [props.postCategoryAPIStatus])
 
-    useEffect(() => {
-        if (props.categoryList.length > 0) {
-            let categoryObj = props.categoryList.find((item) => (item.id === 1));
-            setCatList(categoryObj.categories);
-            console.log("test", categoryObj);
-            setSelectedCat(categoryObj.categories[0].id)
-            setSelectedCatTitle(categoryObj.categories[0].categoryTitle)
-        }
-    }, [props.categoryList])
-
 
     const handleDialogOpen = (type) => {
+        setCatSelApp(appsList.length > 0 && appsList[0].id)
         if (type === 'create') {
             setCatEditFlag(false);
             setDialogOpen(true);
@@ -230,16 +258,13 @@ function BlogList(props) {
             setDialogOpen(true);
             setCatEditFlag(true);
         }
-
     };
 
     const handleCreateCategory = () => {
         props.resetCreateCategory();
         let payload = {
-            id: catList.length + 1,
-            appId: catSelApp,
-            categoryTitle: catName,
-            slug: 'new-category'
+            application: catSelApp,
+            category_name: catName,
         };
         setCreateCatLoading(true);
         props.postCategoryData(payload);
@@ -255,13 +280,13 @@ function BlogList(props) {
 
     const handleChange = (event) => {
         setApp(event.target.value);
-        console.log("sds", event.target.value);
         let appName = event.target.value === 1 ? 'PREP' : event.target.value === 2 ? 'MyAthina' : 'TableVision';
         setAppName(appName);
         if (props.categoryList.length > 0) {
-            let categoryObj = props.categoryList.find((item) => (item.id === event.target.value));
-            console.log("sds", categoryObj);
-            setCatList(categoryObj.categories);
+            let categoryObj = props.categoryList.filter((item) => (item.application.id === event.target.value));
+            setCatList(categoryObj);
+            setSelectedCat(categoryObj.length > 0 && categoryObj[0].id)
+            setSelectedCatTitle(categoryObj.length > 0 && categoryObj[0].category_name)
         }
     };
 
@@ -303,7 +328,6 @@ function BlogList(props) {
                         Edit Blog
                     </Button>
                 </CardActions>
-
             </Card >
         )
     }
@@ -316,7 +340,7 @@ function BlogList(props) {
                         <Button variant="contained" color="primary" className={classes.button} onClick={() => { props.history.push('/createblog') }}>Create Blog</Button>
                         <FormControl variant="outlined" className={classes.formControl}>
                             <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>
-                            <Select
+                            {!appsFetch ? <Select
                                 labelId="demo-simple-select-outlined-label"
                                 id="demo-simple-select-outlined"
                                 value={app}
@@ -324,20 +348,20 @@ function BlogList(props) {
                                 label="Age"
                             >
                                 {appsList.length > 0 && appsList.map((item, index) => (
-                                    <MenuItem key={index} value={item.id}>{item.app_name}</MenuItem>
+                                    <MenuItem key={index} value={item.id}>{item.app_name || 'Invalid App Name'}</MenuItem>
                                 ))}
-                            </Select>
+                            </Select> : <CircularProgress color="primary" />}
                         </FormControl>
                     </Paper>
                     <Paper elevation={3} className={classes.leftPaper}>
-                        <List component="nav" aria-label="blog categories">
-                            {catList && catList.length > 0 && catList.map((item, index) => {
+                        {!categoryFetch ? <List component="nav" aria-label="blog categories">
+                            {catList && catList.length > 0 ? catList.map((item, index) => {
                                 return (<React.Fragment key={index}>
                                     <div className={classes.listRoot}>
                                         <ListItem button onClick={() => handleCatSelection(item)} key={index}>
                                             <ListItemText primary={
                                                 <div className={classes.catName}>
-                                                    {item.categoryTitle}
+                                                    {item.category_name}
                                                 </div>
                                             } />
                                             <ListItemSecondaryAction>
@@ -350,8 +374,8 @@ function BlogList(props) {
                                     <Divider />
                                 </React.Fragment>)
                             }
-                            )}
-                        </List>
+                            ) : <div>No Data to Display</div>}
+                        </List> : <CircularProgress color="secondary" />}
                     </Paper>
                 </Grid>
                 <Grid item xs={12} sm={12} md={10} lg={10}>
@@ -413,9 +437,11 @@ function BlogList(props) {
                                             onChange={handleCatAppChange}
                                             label="App"
                                         >
-                                            {appsList.length > 0 && appsList.map((item, index) => (
-                                                <MenuItem key={index} value={item.id}>{item.app_name}</MenuItem>
-                                            ))}
+                                            {appsList.length > 0 && appsList.map((item, index) => {
+                                                return (
+                                                    <MenuItem key={index} value={item.id}>{item.app_name == null ? 'Invalid App Name' : item.app_name}</MenuItem>
+                                                )
+                                            })}
                                         </Select>
                                     </FormControl>
                                     <TextField className={classes.catTitle} variant='outlined' value={catName} onChange={handleCategoryChange} label="Category Title">
@@ -451,9 +477,10 @@ const mapStateToProps = (state) => {
     return {
         appsList: state.lists.appsList,
         categoryList: state.lists.categoryList,
+        newCategory: state.lists.newCategory,
         appsAPIStatus: state.lists.appsAPIStatus,
         categoryAPIStatus: state.lists.categoryAPIStatus,
-        postCategoryAPIStatus: state.lists.postCategoryAPIStatus
+        postCategoryAPIStatus: state.lists.postCategoryAPIStatus,
     };
 }
 

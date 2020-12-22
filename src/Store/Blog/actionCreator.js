@@ -23,23 +23,25 @@ const apps = {
 
 export const getAppsList = () => {
     let url = apiConfig.apps.getAppsList;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
     return (dispatch) => {
-        return axios.get(url)
+        return axios.get(url, header)
             .then(response => {
                 return response.data
             })
             .then(data => {
+
                 dispatch({
                     type: "FETCH_APPS_LIST",
-                    payload: apps.results
+                    payload: data.results
                 })
             })
             .catch(error => {
-                // throw (error);
-                dispatch({
-                    type: "FETCH_APPS_LIST",
-                    payload: apps.results
-                })
+                throw (error);
             });
     };
 }
@@ -137,25 +139,24 @@ export const resetCreateCategory = () => {
 
 export const getCategoryList = (payload) => {
     let url = apiConfig.blog.getCategoryList;
-    let paramObj = {
-        app_id: payload
-    }
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
     return (dispatch) => {
-        return axios.get(url, paramObj)
+        return axios.get(url, header)
             .then(response => {
                 return response.data
             })
             .then(data => {
                 dispatch({
                     type: "FETCH_CATEGORY_LIST",
-                    payload: categoryListDataNew
+                    payload: data.results
                 })
             })
             .catch(error => {
-                dispatch({
-                    type: "FETCH_CATEGORY_LIST",
-                    payload: categoryListDataNew
-                })
+                console.log("Error")
             });
     };
 }
@@ -164,30 +165,24 @@ export const getCategoryList = (payload) => {
 export const postCategoryData = (payload) => {
 
     let url = apiConfig.blog.createCategory;
-    var categoryList = categoryListDataNew.find(item => item.id === payload.appId);
-    // console.log("console", categoryList);
-    // categoryList.categories.push(payload);
-    // var categoryListIndex = categoryListDataNew.findIndex(item => item.id === payload.appId);
-    // if (categoryListIndex != undefined) {
-    //     categoryListDataNew[categoryListIndex].categories = [];
-    // }
-    // categoryListDataNew[categoryListIndex].categories = categoryList;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
     return (dispatch) => {
-        return axios.post(url, payload)
+        return axios.post(url, payload, header)
             .then(response => {
                 return response.data
             })
             .then(data => {
                 dispatch({
                     type: "CREATE_CATEGORY_DATA",
-                    payload: categoryList
+                    payload: data
                 })
             })
             .catch(error => {
-                dispatch({
-                    type: "CREATE_CATEGORY_DATA",
-                    payload: categoryList
-                })
+
             });
     };
 }
