@@ -183,7 +183,7 @@ function BlogList(props) {
     const [catName, setCatName] = useState('')
     const [catSelApp, setCatSelApp] = useState(0);
     const [selectedCatTitle, setSelectedCatTitle] = useState('');
-    const [selectedCat, setSelectedCat] = useState(1);
+    const [selectedCat, setSelectedCat] = useState('');
     const [dialogOpen, setDialogOpen] = useState(false);
     const [appName, setAppName] = useState('PREP');
     const [catEditFlag, setCatEditFlag] = useState(false);
@@ -223,18 +223,18 @@ function BlogList(props) {
     }, [props.categoryList])
 
     useEffect(() => {
-        if (props.categoryList.length > 0 && appsList.length > 0) {
-            let catList = props.categoryList;
-            catList.push(props.newCategory.data);
-            let categoryArr = catList.filter((item) => (item.application.id === appsList[0].id));
-            setCatList(categoryArr);
-            setSelectedCat(categoryArr.length > 0 && categoryArr[0].id)
-            setSelectedCatTitle(categoryArr.length > 0 && categoryArr[0].category_name)
-        } else {
+        if (Object.keys(props.newCategory).length > 0) {
             let categoryArr = [];
-            categoryArr.push(props.newCategory.data)
+            if (props.categoryList.length > 0 && props.appsList.length > 0) {
+                let catList = props.categoryList;
+                catList.push(props.newCategory.data);
+                categoryArr = catList.filter((item) => (item.application.id === appsList[0].id));
+            }
+            else {
+                categoryArr.push(props.newCategory.data)
+            }
             setCatList(categoryArr);
-            setSelectedCat(categoryArr.length > 0 && categoryArr[0].id)
+            setSelectedCat(categoryArr.length > 0 ? categoryArr[0].id : '')
             setSelectedCatTitle(categoryArr.length > 0 && categoryArr[0].category_name)
         }
     }, [props.newCategory])
@@ -337,6 +337,7 @@ function BlogList(props) {
             <Grid container spacing={2}>
                 <Grid item xs={12} sm={12} md={2} lg={2}>
                     <Paper elevation={3} className={classes.leftPaper}>
+                        <Button variant="contained" color="primary" className={classes.button} onClick={() => { props.history.push('/blogconfig') }}>Blog Configs</Button>
                         <Button variant="contained" color="primary" className={classes.button} onClick={() => { props.history.push('/createblog') }}>Create Blog</Button>
                         <FormControl variant="outlined" className={classes.formControl}>
                             <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>

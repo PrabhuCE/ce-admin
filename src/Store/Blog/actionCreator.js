@@ -161,8 +161,124 @@ export const getCategoryList = (payload) => {
     };
 }
 
+export const createApp = (payload, existingList) => {
 
-export const postCategoryData = (payload) => {
+    let url = apiConfig.apps.createApps;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.post(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.push(data.data);
+                dispatch({
+                    type: "CREATE_APP_DATA",
+                    payload: existingList
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+
+export const editAppInfo = (payload, existingList) => {
+
+    let url = apiConfig.apps.editAppInfo + `${payload.app_id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    let editPayload = {
+        app_name: payload.app_name
+    }
+    return (dispatch) => {
+        return axios.put(url, editPayload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.find(item => item.id === payload.app_id).app_name = payload.app_name;
+
+                dispatch({
+                    type: "EDIT_APP_INFO",
+                    payload: existingList
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const archiveApp = (payload, existingList) => {
+
+    let url = apiConfig.apps.archiveApp + `${payload.app_id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.delete(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.find(item => item.id === payload.app_id).is_active = false;
+                dispatch({
+                    type: "ARCHIVE_APP",
+                    payload: existingList
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+
+
+export const unArchiveApp = (payload, existingList) => {
+
+    let url = apiConfig.apps.unArchiveApp + `${payload.app_id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.post(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.find(item => item.id === payload.app_id).is_active = true;
+                dispatch({
+                    type: "UN_ARCHIVE_APP",
+                    payload: existingList
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const postCategoryData = (payload, existingCatList) => {
 
     let url = apiConfig.blog.createCategory;
     let header = {
@@ -176,9 +292,96 @@ export const postCategoryData = (payload) => {
                 return response.data
             })
             .then(data => {
+                existingCatList.push(data.data);
+                console.log("existingList", existingCatList);
                 dispatch({
                     type: "CREATE_CATEGORY_DATA",
-                    payload: data
+                    payload: existingCatList
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const editCatInfo = (payload, existingCatList) => {
+    let url = apiConfig.categories.catURL + `${payload.category.id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    let editPayload = {
+        application: payload.application,
+        category_name: payload.cat_name
+    }
+    return (dispatch) => {
+        return axios.put(url, editPayload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingCatList.find(item => item.id === payload.category.id).category_name = payload.cat_name;
+                dispatch({
+                    type: "EDIT_CAT_INFO",
+                    payload: existingCatList
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const archiveCat = (payload, existingList) => {
+
+    let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.delete(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.find(item => item.id === payload.cat_id).is_active = false;
+                dispatch({
+                    type: "ARCHIVE_CAT",
+                    payload: existingList
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+
+
+export const unArchiveCat = (payload, existingList) => {
+
+    let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.post(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                existingList.find(item => item.id === payload.cat_id).is_active = true;
+                dispatch({
+                    type: "UN_ARCHIVE_CAT",
+                    payload: existingList
                 })
             })
             .catch(error => {

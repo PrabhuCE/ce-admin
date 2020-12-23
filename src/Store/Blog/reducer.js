@@ -2,7 +2,8 @@ const initState = {
     appsList: [],
     categoryList: [],
     appsAPIStatus: false,
-    newCategory: [],
+    newApp: {},
+    newCategory: {},
     categoryAPIStatus: false,
     postCategoryAPIStatus: false
 }
@@ -13,6 +14,7 @@ export const listData = (state = initState, action) => {
         case 'FETCH_APPS_LIST':
             return {
                 ...state,
+
                 appsList: action.payload,
                 appsAPIStatus: true,
                 categoryAPIStatus: false,
@@ -27,13 +29,45 @@ export const listData = (state = initState, action) => {
                 categoryAPIStatus: true,
                 postCategoryAPIStatus: false,
             }
+        case 'CREATE_APP_DATA':
+            return {
+                ...state,
+                appsList: action.payload,
+            }
+        case 'EDIT_APP_INFO':
+            return {
+                ...state,
+                appsList: action.payload,
+            }
+        case 'ARCHIVE_APP':
+            return {
+                ...state,
+                appsList: action.payload,
+            }
+        case 'UN_ARCHIVE_APP':
+            return {
+                ...state,
+                appsList: action.payload,
+            }
         case 'CREATE_CATEGORY_DATA':
             return {
                 ...state,
-                newCategory: action.payload,
-                //appsAPIStatus: false,
-                categoryAPIStatus: false,
-                postCategoryAPIStatus: true,
+                categoryList: action.payload,
+            }
+        case 'EDIT_CAT_INFO':
+            return {
+                ...state,
+                categoryList: action.payload,
+            }
+        case 'ARCHIVE_CAT':
+            return {
+                ...state,
+                categoryList: action.payload,
+            }
+        case 'UN_ARCHIVE_CAT':
+            return {
+                ...state,
+                categoryList: action.payload,
             }
         case 'RESET_CREATE_CATEGORY':
             return {

@@ -9,7 +9,7 @@ import Home from "../Home";
 import BlogLogin from "../UserAuth/blogLogin";
 import Blog from "../Blog";
 import BlogCreate from '../Blog/createNew';
-import CatDetails from '../Blog/catDetails';
+import BlogConfig from '../Blog/blogConfig';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 
 function Layout(props) {
@@ -19,8 +19,8 @@ function Layout(props) {
         <Route exact={true} path="/" component={Login} />
         <Route path="/bloglogin" history={props.history} component={BlogLogin} />
         <Route path="/createblog" history={props.history} component={BlogCreate} />
+        <Route path="/blogconfig" history={props.history} component={BlogConfig} />
         <Route path="/apps" history={props.history} component={AppList} />
-        <Route path="/categorydet" history={props.history} component={CatDetails} />
         <PrivateRoute
           path="/tenantlogin"
           history={props.history}
