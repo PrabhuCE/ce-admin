@@ -177,7 +177,7 @@ function BlogList(props) {
     const [appsFetch, setAppsFetch] = useState(true);
     const [categoryFetch, setCategoryFetch] = useState(true);
     const [appsList, setAppsList] = useState([])
-    const [blogList, setBlogList] = useState(blogListData.results || []);
+    const [blogList, setBlogList] = useState([]);
     const [app, setApp] = useState(0);
     const [catList, setCatList] = useState([]);
     const [catName, setCatName] = useState('')
@@ -198,7 +198,8 @@ function BlogList(props) {
     }
 
     const handleCatSelection = (item) => {
-        setSelectedCatTitle(item.categoryTitle);
+        setSelectedCatTitle(item.category_name);
+
     }
 
     useEffect(() => {

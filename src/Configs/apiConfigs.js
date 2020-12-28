@@ -59,6 +59,9 @@ export const apiConfig = {
     getCategoryList: `${base_domain}blogs/category/`,
     createCategory: `${base_domain}blogs/category/`,
     getBlogListData: `${base_domain}ceadmin/blog/categories`,
-    getBlogContent: `${base_domain}ceadmin/blog/categories`
+    getBlogContent: `${base_domain}ceadmin/blog/categories`,
+    contImg: `${base_domain}blogs/multimedia/`,
+    createBlog: `${base_domain}blogs/blog/`,
+    blogListing: `${base_domain}blogs/blog/`,
   }
 };

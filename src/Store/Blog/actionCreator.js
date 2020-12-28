@@ -390,6 +390,88 @@ export const unArchiveCat = (payload, existingList) => {
     };
 }
 
+export const uploadThumbImg = (payload) => {
+    let url = apiConfig.blog.contImg;
+    let header = {
+        headers: {
+            "Content-Type": "multipart/form-data",
+            "Authorization": "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    const data = new FormData()
+    data.append("file", payload)
+
+    return (dispatch) => {
+        return axios.post(url, data, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "THUMB_IMG",
+                    payload: data
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const uploadAuthorImg = (payload) => {
+    let url = apiConfig.blog.contImg;
+    let header = {
+        headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    const data = new FormData()
+    data.append("file", payload)
+
+    return (dispatch) => {
+        return axios.post(url, data, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "AUTHOR_IMG",
+                    payload: data
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+export const createBlog = (payload) => {
+    let url = apiConfig.blog.createBlog;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.post(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "CREATE_BLOG",
+                    payload: data.data
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
 
 export const blogListData = {
     id: 1,
@@ -481,6 +563,58 @@ export const getBlogListData = (payload, successCB, failureCB) => {
         successCB(blogListData)
         //failureCB(error)
     })
+}
+
+export const getActiveBlogsForCategory = (category) => {
+
+    let url = apiConfig.blog.blogListing + `${category}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "ACTIVE_BLOG_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+                console.log("Error")
+            });
+    };
+
+}
+
+export const getArchivedBlogsForCategory = (category) => {
+
+    let url = apiConfig.blog.blogListing + `?archive=true&category_id=${category}`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "ARCHIVED_BLOG_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+                console.log("Error")
+            });
+    };
+
 }
 
 

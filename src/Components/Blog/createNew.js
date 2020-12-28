@@ -16,8 +16,10 @@ import Input from "@material-ui/core/Input";
 //import TextEditorClassic from '../Shared/TextEditorClassic';
 import TextEditor from '../Shared/TextEditor';
 import Header from '../../Components/Header';
-import { getBlogContent } from '../../Store/Blog/actionCreator';
+import { getBlogContent, uploadThumbImg, uploadAuthorImg, createBlog } from '../../Store/Blog/actionCreator';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { redirectTo } from '../../Helpers/basics'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -96,14 +98,13 @@ function CreateBlog(props) {
     const [app, setApp] = useState(0);
     const [ogImg, setOgImg] = useState();
     const [ogFileName, setOgFileName] = useState('');
+    const [blogSuccess, setBlogSuccess] = useState(false);
     //Meta Content Object
     const [metaContent, setMetaContent] = useState({
         "meta-title": '',
         "meta-desc": '',
         "meta-keyword": '',
-        "meta-author": '',
-        "meta-robot": '',
-        "meta-copyright": ''
+        "meta-author": ''
     })
 
     //OG SMO Object
@@ -131,6 +132,14 @@ function CreateBlog(props) {
         }
     }, [])
 
+
+    useEffect(() => {
+        if (props.newBlog !== undefined) {
+            setBlogSuccess(true);
+        }
+    }, [props.list])
+
+
     const onFileToUploadClick = (imgType) => {
         document.getElementById(imgType).click();
     };
@@ -150,7 +159,6 @@ function CreateBlog(props) {
     };
     const handleAppChange = (event) => {
         setApp(event.target.value);
-        console.log("event.target.value")
         if (props.categoryList.length > 0) {
             let categoryArr = props.categoryList.filter((item) => (item.application.id === event.target.value));
             setCategories(categoryArr);
@@ -160,6 +168,7 @@ function CreateBlog(props) {
     const handleTitleChange = (event) => {
         setTitle(event.target.value)
     }
+
 
     const handleUrlSlugChange = (event) => {
         setUrlSlug(event.target.value)
@@ -182,8 +191,10 @@ function CreateBlog(props) {
             let reader = new FileReader();
             reader.onloadend = () => {
                 setThumbnailImg(reader.result);
+
             };
             reader.readAsDataURL(event.target.files[0]);
+            props.uploadThumbImg(event.target.files[0]);
         } else {
             // props.showSnackBar({
             //     state: true,
@@ -205,6 +216,7 @@ function CreateBlog(props) {
                 setAuthorImg(reader.result);
             };
             reader.readAsDataURL(event.target.files[0]);
+            props.uploadAuthorImg(event.target.files[0]);
         } else {
             // props.showSnackBar({
             //     state: true,
@@ -256,6 +268,39 @@ function CreateBlog(props) {
 
     const handleOGContentChange = (field, event) => {
         setOGContent({ ...OGContent, [field]: event.target.value })
+    }
+
+    const onChangeEditorContent = (data) => {
+        setBlogContent(data);
+    }
+
+    const createBlog = () => {
+        let payload = {};
+        payload["category"] = category;
+        payload["title"] = title;
+        if (props.thumbImg) {
+            payload["thumbnail_image_key"] = props.thumbImg.s3_key;
+        }
+        payload["duration"] = duration;
+        payload["url_slug"] = urlSlug;
+        payload["author_name"] = author;
+        if (props.thumbImg) {
+            payload["author_image_key"] = props.authorImg.s3_key;
+        }
+        payload["keywords"] = keywords;
+        payload["content"] = blogContent;
+        payload["meta_title"] = metaContent["meta-title"];
+        payload["meta_description"] = metaContent["meta-desc"];
+        payload["meta_keyword"] = metaContent["meta-keyword"];
+        payload["meta_author"] = metaContent["meta-author"];
+        payload["og_title"] = OGContent["og-title"];
+        payload["og_url"] = OGContent["og-url"];
+        payload["og_keyword"] = OGContent["og-keywords"];
+        payload["og_desc"] = OGContent["og-desc"];
+        if (props.thumbImg) {
+            payload["og_image_key"] = props.thumbImg.s3_key;
+        }
+        props.createBlog(payload);
     }
 
     return (
@@ -396,7 +441,7 @@ function CreateBlog(props) {
                                 </Grid>
                                 <Divider className={classes.divider} />
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <TextEditor />
+                                    <TextEditor description={blogContent} onChangeEditorContent={onChangeEditorContent} />
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-title', e) }} value={metaContent["meta-title"]} label="meta-title">
@@ -407,21 +452,14 @@ function CreateBlog(props) {
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-keyword', e) }} value={metaContent["meta-keyword"]} label="meta-keyword">
+                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-keyword', e) }} value={metaContent["meta-keyword"]} label="meta-keyword (Ex:e-Learning,analytics,alt-text)">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-author', e) }} value={metaContent["meta-author"]} label="meta-author">
                                     </TextField>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-robot', e) }} value={metaContent["meta-robot"]} label="meta-robot">
-                                    </TextField>
-                                </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-copyright', e) }} value={metaContent["meta-copyright"]} label="meta-copyright">
-                                    </TextField>
-                                </Grid>
+
                                 <Divider className={classes.divider} />
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-title', e) }} value={OGContent["og-title"]} label="og-title">
@@ -439,57 +477,49 @@ function CreateBlog(props) {
                                     <TextField className={classes.title} variant='outlined' onChange={(e) => { handleOGContentChange('og-keywords', e) }} value={OGContent["og-keywords"]} label="og-keyword">
                                     </TextField>
                                 </Grid>
-                                <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={6} md={4} lg={4}>
-                                            <div className={classes.uploadCtr}>
-                                                <Button
-                                                    variant="contained"
-                                                    color="default"
-                                                    className={classes.uploadBtn}
-                                                    startIcon={<CloudUploadIcon />}
-                                                    onClick={() => {
-                                                        onFileToUploadClick("ogImage");
-                                                    }}
-                                                >
-                                                    OG Image
-                                        </Button>
-                                                <Input accept="image/*" capture type="file" style={{ display: "none" }} id="ogImage" onChange={onOGImgChangeHandler} />
-                                            </div>
-                                        </Grid>
-                                        <Grid item xs={12} sm={6} md={8} lg={8}>
-                                            <div className={classes.uploadFileName}>{ogFileName}</div>
-                                        </Grid>
-                                    </Grid>
-                                </Grid>
                             </Grid>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <Button variant="contained" color="primary" className={classes.uploadBtn}>
+                                    <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { createBlog() }}>
                                         Submit
                                     </Button>
                                 </Grid>
                             </Grid>
+                            {blogSuccess && <Grid container spacing={2}>
+                                <Grid item xs={12} sm={12} md={12} lg={12}>
+                                    <div style={{ display: 'flex' }}>
+                                        <div>Blog Created Successfully</div>
+                                        <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { redirectTo('/blog') }}>
+                                            View List
+                                    </Button>
+                                    </div>
+                                </Grid>
+                            </Grid>}
                         </Paper>
                     </Grid>
-                    <Grid item xs={12} sm={12} md={12} lg={2}>
-
-                    </Grid>
-
-
                 </Grid>
-
             </div>
         </div >
     )
 }
 
+const mapDispatchToProps = (dispatch) => ({
+    uploadThumbImg: bindActionCreators(uploadThumbImg, dispatch),
+    uploadAuthorImg: bindActionCreators(uploadAuthorImg, dispatch),
+    createBlog: bindActionCreators(createBlog, dispatch)
+
+})
 
 const mapStateToProps = (state) => {
+    const list = state.lists
     return {
-        appsList: state.lists.appsList,
-        categoryList: state.lists.categoryList
+        list,
+        appsList: list.appsList,
+        categoryList: list.categoryList,
+        thumbImg: list.thumbImg,
+        authorImg: list.authorImg,
+        newBlog: list.newBlog
     };
 }
 
-export default connect(mapStateToProps)(CreateBlog);
+export default connect(mapStateToProps, mapDispatchToProps)(CreateBlog);

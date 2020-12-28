@@ -1,9 +1,14 @@
 const initState = {
     appsList: [],
     categoryList: [],
-    appsAPIStatus: false,
     newApp: {},
     newCategory: {},
+    thumbImg: '',
+    authorImg: '',
+    newBlog: {},
+    activeBlogList: [],
+    archivedBlogList: [],
+    appsAPIStatus: false,
     categoryAPIStatus: false,
     postCategoryAPIStatus: false
 }
@@ -14,7 +19,6 @@ export const listData = (state = initState, action) => {
         case 'FETCH_APPS_LIST':
             return {
                 ...state,
-
                 appsList: action.payload,
                 appsAPIStatus: true,
                 categoryAPIStatus: false,
@@ -68,6 +72,21 @@ export const listData = (state = initState, action) => {
             return {
                 ...state,
                 categoryList: action.payload,
+            }
+        case 'THUMB_IMG':
+            return {
+                ...state,
+                thumbImg: action.payload,
+            }
+        case 'AUTHOR_IMG':
+            return {
+                ...state,
+                authorImg: action.payload,
+            }
+        case 'CREATE_BLOG':
+            return {
+                ...state,
+                newBlog: action.payload,
             }
         case 'RESET_CREATE_CATEGORY':
             return {

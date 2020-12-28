@@ -14,9 +14,10 @@ export class UploadAdapter {
             return axios({
                 data,
                 method: "POST",
-                url: apiConfig.getTables.fetchTableData,
+                url: apiConfig.blog.contImg,
                 headers: {
                     "Content-Type": "multipart/form-data",
+                    "Authorization": "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
                 },
                 onUploadProgress: (progressEvent) => {
                     this.loader.uploadTotal = progressEvent.total
@@ -26,8 +27,8 @@ export class UploadAdapter {
                     )
                 },
             })
-                .then(({ data }) => ({ default: "https://myathina-blog.s3.amazonaws.com/banner/findCourse.png" }))
-                //     .catch(({ error }) => Promise.reject(error?.message ?? genericError))
+                .then(({ data }) =>
+                    ({ default: data.temp_url }))
                 .catch(({ error }) => ({ default: "https://myathina-blog.s3.amazonaws.com/banner/findCourse.png" }))
         })
     }

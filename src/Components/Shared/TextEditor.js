@@ -37,8 +37,8 @@ function TextEditor(props) {
     }, [props]);
 
     const onChangeData = (data) => {
-        console.log("Data", data)
         setDefaultData(data);
+        props.onChangeEditorContent(data);
     };
     const previewContent = () => {
         setPreviewDialog(true);
@@ -66,7 +66,7 @@ function TextEditor(props) {
                 onChange={(event, editor) => {
                     const data = editor.getData();
                     onChangeData(data);
-                    //props.onChangeEditorContent(data);
+
                 }}
                 config={{
                     placeholder: helperText ? helperText : "Add content here...",
@@ -236,7 +236,7 @@ function TextEditor(props) {
                 <DialogActions>
                     <Button onClick={handleDialogClose} color="primary">
                         Close
-          </Button>
+                    </Button>
                 </DialogActions>
             </Dialog>
         </div>
