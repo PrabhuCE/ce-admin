@@ -46,6 +46,15 @@ export const getAppsList = () => {
     };
 }
 
+export const clearNewBlogObj = () => {
+    return (dispatch) => {
+        dispatch({
+            type: "CLEAR_NEW_BLOG_OBJ",
+            payload: {}
+        })
+    }
+}
+
 export const categoryListDataNew = [{
     id: 1,
     name: "TableVision",
@@ -707,6 +716,35 @@ export const unArchiveBlog = (payload, existingList, archBlogList) => {
                 dispatch({
                     type: "UNARCHIVE_BLOG",
                     payload: blogObj
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+
+export const updateBlog = (id, payload, existingList) => {
+    let url = apiConfig.blog.createBlog + `${id}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.put(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                let newList = existingList.filter(item => item.id !== payload);
+                newList.push(data.data);
+
+                dispatch({
+                    type: "UPDATE_BLOG",
+                    payload: newList
                 })
             })
             .catch(error => {

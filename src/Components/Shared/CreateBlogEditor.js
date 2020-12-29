@@ -24,7 +24,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
 });
 
-function TextEditor(props) {
+function CreateBlogEditor(props) {
     const classes = useStyles();
     const [openDialog, setOpenDialog] = useState(false);
     const [defaultData, setDefaultData] = useState(props.description);
@@ -38,7 +38,6 @@ function TextEditor(props) {
     const onChangeData = (data) => {
         setDefaultData(data);
     };
-
     const previewContent = () => {
         setPreviewDialog(true);
     };
@@ -280,4 +279,4 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-export default TextEditor;
+export default CreateBlogEditor;

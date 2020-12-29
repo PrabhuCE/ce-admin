@@ -88,6 +88,13 @@ export const listData = (state = initState, action) => {
                 ...state,
                 newBlog: action.payload,
             }
+        case 'CLEAR_NEW_BLOG_OBJ':
+            return {
+                ...state,
+                newBlog: {},
+                thumbImg: '',
+                authorImg: ''
+            }
         case 'ACTIVE_BLOG_LIST':
             return {
                 ...state,
@@ -109,6 +116,11 @@ export const listData = (state = initState, action) => {
                 ...state,
                 activeBlogList: action.payload.blogList,
                 archivedBlogList: action.payload.archivedList
+            }
+        case 'UPDATE_BLOG':
+            return {
+                ...state,
+                archivedBlogList: action.payload
             }
         case 'RESET_CREATE_CATEGORY':
             return {

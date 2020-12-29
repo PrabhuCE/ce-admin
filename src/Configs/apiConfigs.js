@@ -63,5 +63,6 @@ export const apiConfig = {
     contImg: `${base_domain}blogs/multimedia/`,
     createBlog: `${base_domain}blogs/blog/`,
     blogListing: `${base_domain}blogs/blog/`,
+    editBlog: `${base_domain}blogs/blog/`,
   }
 };

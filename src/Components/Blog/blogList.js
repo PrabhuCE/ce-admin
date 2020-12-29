@@ -225,8 +225,8 @@ function BlogList(props) {
     const [selectedCat, setSelectedCat] = useState();
     const [value, setValue] = useState(0);
 
-    const editBlogContent = () => {
-        props.history.push('/createBlog?blog_id=123')
+    const editBlogContent = (blogId) => {
+        props.history.push(`/createBlog?blog_id=${blogId}`)
     }
 
     const handleTabChange = (event, newValue) => {
@@ -351,12 +351,14 @@ function BlogList(props) {
                 <CardActions disableSpacing className={classes.cardActions}>
                     {item.is_active ? <Button color="primary" variant='outlined' onClick={() => { archiveBlog(item) }} style={{ marginRight: '0.5rem' }}>
                         Archive
-                    </Button> : <Button color="primary" variant='outlined' onClick={() => { unArchiveBlog(item) }} style={{ marginRight: '0.5rem' }}>
+                    </Button> :
+                        <Button color="primary" variant='outlined' onClick={() => { unArchiveBlog(item) }} style={{ marginRight: '0.5rem' }}>
                             Activate
-                    </Button>}
-                    <Button color="primary" variant='outlined' onClick={editBlogContent}>
-                        Edit Blog
                     </Button>
+                    }
+                    {!item.is_active && <Button color="primary" variant='outlined' onClick={() => { editBlogContent(item.id) }}>
+                        Edit Blog
+                    </Button>}
                 </CardActions>
             </Card >
         )

@@ -12,14 +12,21 @@ import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import Chip from '@material-ui/core/Chip';
+import VisibilityIcon from '@material-ui/icons/Visibility';
 import Input from "@material-ui/core/Input";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogTitle from "@material-ui/core/DialogTitle";
+import CreateEditor from '../../Components/Shared/CreateBlogEditor';
 //import TextEditorClassic from '../Shared/TextEditorClassic';
 import TextEditor from '../Shared/TextEditor';
 import Header from '../../Components/Header';
-import { getBlogContent, uploadThumbImg, uploadAuthorImg, createBlog } from '../../Store/Blog/actionCreator';
+import { getBlogContent, uploadThumbImg, uploadAuthorImg, createBlog, updateBlog, clearNewBlogObj } from '../../Store/Blog/actionCreator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { redirectTo } from '../../Helpers/basics'
+import { Tooltip } from '@material-ui/core';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -41,7 +48,8 @@ const useStyles = makeStyles((theme) => ({
         }
     },
     uploadCtr: {
-        textAlign: 'initial'
+        display: 'flex',
+        textAlign: 'center'
     },
     formControl: {
         width: '100%'
@@ -71,14 +79,16 @@ const useStyles = makeStyles((theme) => ({
         textAlign: 'initial',
         marginTop: '1rem'
     },
-    button: {
-
+    prevIcn: {
+        margin: '1rem 0.5rem',
+        cursor: 'pointer'
     }
 }))
 
 
 function CreateBlog(props) {
     const classes = useStyles();
+    const [isEdit, setIsEdit] = useState(false);
     const [category, setCategory] = useState('');
     const [apps, setApps] = useState(props.appsList && props.appsList || []);
     const [categories, setCategories] = useState([]);
@@ -90,7 +100,7 @@ function CreateBlog(props) {
     const [thumbnailFileName, setThumbnailFileName] = useState('');
     const [authorImg, setAuthorImg] = useState();
     const [authorFileName, setAuthorFileName] = useState('');
-    const [blogContent, setBlogContent] = useState();
+    const [blogContent, setBlogContent] = useState(null);
     const [author, setAuthor] = useState();
     const [keywordTxt, setKeywordTxt] = useState();
     const [keywords, setKeywords] = useState([]);
@@ -99,21 +109,25 @@ function CreateBlog(props) {
     const [ogImg, setOgImg] = useState();
     const [ogFileName, setOgFileName] = useState('');
     const [blogSuccess, setBlogSuccess] = useState(false);
-    //Meta Content Object
     const [metaContent, setMetaContent] = useState({
         "meta-title": '',
         "meta-desc": '',
         "meta-keyword": '',
         "meta-author": ''
     })
-
-    //OG SMO Object
     const [OGContent, setOGContent] = useState({
         "og-title": '',
         "og-url": '',
         "og-desc": '',
         "og-keywords": ''
     })
+    const [previewImg, setPreviewImg] = useState('');
+    const [updateThumbnail, setUpdateThumbnail] = useState(false);
+    const [updateAuthorImg, setUpdateAuthorImg] = useState(false);
+    const [editThumbURL, setEditThumbURL] = useState();
+    const [editAuthImgURL, setEditAuthImgURL] = useState();
+    const [openDialog, setOpenDialog] = useState(false);
+
 
     useEffect(() => {
         if (props.categoryList.length > 0) {
@@ -123,40 +137,70 @@ function CreateBlog(props) {
     }, [props.categoryList])
 
     useEffect(() => {
+        props.clearNewBlogObj();
         let urlParams = new URLSearchParams(window.location.search);
         let paramVal = urlParams.get("blog_id");
         if (paramVal) {
-            getBlogContent(paramVal, successCB, failureCB);
+            setIsEdit(true);
+            if (props.archivedBlogList.length > 0) {
+                let editBlog = props.archivedBlogList.find(item => item.id == paramVal);
+                setApp(editBlog.category.application.id);
+                setCategory(editBlog.category.id);
+                setTitle(editBlog.title);
+                setUrlSlug(editBlog.url_slug);
+                setDuration(editBlog.duration);
+                setEditThumbURL(editBlog.thumbnail_image);
+                setEditAuthImgURL(editBlog.author_image);
+                setAuthor(editBlog.author_name);
+                let keywordArr = editBlog.keywords.map((item) => item["keyword"])
+                setKeywords(keywordArr);
+                setKeywordTxt(keywordArr.toString());
+                setBlogContent(editBlog.content);
+                setMetaContent({
+                    "meta-title": editBlog.meta_title,
+                    "meta-desc": editBlog.meta_description,
+                    "meta_keyword": editBlog.meta_keyword,
+                    "meta_author": editBlog.meta_author,
+                });
+                setOGContent({
+                    "og-title": editBlog.og_title,
+                    "og-url": editBlog.og_url,
+                    "og-desc": editBlog.og_description,
+                    "og-keywords": editBlog.og_keyword,
+                });
+            }
         } else {
             setLoading(false)
         }
     }, [])
 
-
     useEffect(() => {
-        if (props.newBlog !== undefined) {
+        if (Object.keys(props.newBlog).length > 0) {
             setBlogSuccess(true);
         }
     }, [props.list])
+
+    useEffect(() => {
+        if (props.thumbImg !== '') {
+            setEditThumbURL(props.thumbImg.temp_url)
+        }
+    }, [props.thumbImg])
+
+    useEffect(() => {
+        if (props.authorImg !== '') {
+            setEditAuthImgURL(props.authorImg.temp_url)
+        }
+    }, [props.authorImg])
 
 
     const onFileToUploadClick = (imgType) => {
         document.getElementById(imgType).click();
     };
 
-    const successCB = (res) => {
-        setTitle(res.title);
-        setAuthor(res.author_name);
-        setLoading(false)
-    }
-
-    const failureCB = (err) => {
-
-    }
-
     const handleChange = (event) => {
         setCategory(event.target.value);
     };
+
     const handleAppChange = (event) => {
         setApp(event.target.value);
         if (props.categoryList.length > 0) {
@@ -164,6 +208,13 @@ function CreateBlog(props) {
             setCategories(categoryArr);
         }
     };
+
+    useEffect(() => {
+        if (props.categoryList.length > 0) {
+            let categoryArr = props.categoryList.filter((item) => (item.application.id === app));
+            setCategories(categoryArr);
+        }
+    }, [app])
 
     const handleTitleChange = (event) => {
         setTitle(event.target.value)
@@ -191,8 +242,10 @@ function CreateBlog(props) {
             let reader = new FileReader();
             reader.onloadend = () => {
                 setThumbnailImg(reader.result);
-
             };
+            if (isEdit) {
+                setUpdateThumbnail(true);
+            }
             reader.readAsDataURL(event.target.files[0]);
             props.uploadThumbImg(event.target.files[0]);
         } else {
@@ -215,6 +268,9 @@ function CreateBlog(props) {
             reader.onloadend = () => {
                 setAuthorImg(reader.result);
             };
+            if (isEdit) {
+                setUpdateAuthorImg(true);
+            }
             reader.readAsDataURL(event.target.files[0]);
             props.uploadAuthorImg(event.target.files[0]);
         } else {
@@ -303,6 +359,47 @@ function CreateBlog(props) {
         props.createBlog(payload);
     }
 
+    const updateBlog = () => {
+        let payload = {};
+        payload["category"] = category;
+        payload["title"] = title;
+        if (updateThumbnail) {
+            payload["thumbnail_image_key"] = props.thumbImg.s3_key;
+        }
+        payload["duration"] = duration;
+        payload["url_slug"] = urlSlug;
+        payload["author_name"] = author;
+        if (updateAuthorImg) {
+            payload["author_image_key"] = props.authorImg.s3_key;
+        }
+        payload["keywords"] = keywords;
+        payload["content"] = blogContent;
+        payload["meta_title"] = metaContent["meta-title"];
+        payload["meta_description"] = metaContent["meta-desc"];
+        payload["meta_keyword"] = metaContent["meta-keyword"];
+        payload["meta_author"] = metaContent["meta-author"];
+        payload["og_title"] = OGContent["og-title"];
+        payload["og_url"] = OGContent["og-url"];
+        payload["og_keyword"] = OGContent["og-keywords"];
+        payload["og_desc"] = OGContent["og-desc"];
+        if (props.thumbImg) {
+            payload["og_image_key"] = props.thumbImg.s3_key;
+        }
+        let urlParams = new URLSearchParams(window.location.search);
+        let paramVal = urlParams.get("blog_id");
+        props.updateBlog(paramVal, payload, props.archivedBlogList);
+    }
+
+    const openPreviewDialog = (type) => {
+        setOpenDialog(true)
+        if (type == 'thumbnail') {
+            setPreviewImg(editThumbURL)
+        } else {
+            setPreviewImg(editAuthImgURL)
+        }
+    }
+
+
     return (
         <div>
             <Header />
@@ -353,7 +450,7 @@ function CreateBlog(props) {
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={6} md={4} lg={4}>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
                                             <div className={classes.uploadCtr}>
                                                 <Button
                                                     variant="contained"
@@ -366,26 +463,27 @@ function CreateBlog(props) {
                                                 >
                                                     Thumbnail
                                                 </Button>
+                                                <Tooltip title="preview"><VisibilityIcon className={classes.prevIcn} onClick={() => { openPreviewDialog('thumbnail') }} /></Tooltip>
                                             </div>
                                             <Input accept="image/*" capture type="file" style={{ display: "none" }} id="thumbnailImage" onChange={onThumbnailChangeHandler} />
                                         </Grid>
-                                        <Grid item xs={12} sm={6} md={8} lg={8}>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
                                             <div className={classes.uploadFileName}>{thumbnailFileName}</div>
                                         </Grid>
                                     </Grid>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} onChange={handleUrlSlugChange} variant='outlined' label="URL Slug">
+                                    <TextField className={classes.title} onChange={handleUrlSlugChange} value={urlSlug} variant='outlined' label="URL Slug">
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={2} lg={2}>
-                                    <TextField className={classes.title} onChange={handleDurationChange} variant='outlined' label="Duration(Mins)">
+                                    <TextField className={classes.title} onChange={handleDurationChange} value={duration} variant='outlined' label="Duration(Mins)">
                                     </TextField>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={4} lg={4}>
-                                    <TextField className={classes.title} onChange={handleAuthorChange} variant='outlined' label="Author">
+                                    <TextField className={classes.title} onChange={handleAuthorChange} value={author} variant='outlined' label="Author">
                                     </TextField>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} lg={3}>
@@ -401,8 +499,10 @@ function CreateBlog(props) {
                                         >
                                             Author Img
                                         </Button>
-                                        <Input accept="image/*" capture type="file" style={{ display: "none" }} id="authorImage" onChange={onAuthorImgChangeHandler} />
+                                        <Tooltip title="preview"><VisibilityIcon className={classes.prevIcn} onClick={() => { openPreviewDialog('author') }} /></Tooltip>
                                     </div>
+                                    <Input accept="image/*" capture type="file" style={{ display: "none" }} id="authorImage" onChange={onAuthorImgChangeHandler} />
+
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={3} lg={3}>
                                     <div className={classes.uploadFileName}>{authorFileName}</div>
@@ -441,7 +541,7 @@ function CreateBlog(props) {
                                 </Grid>
                                 <Divider className={classes.divider} />
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <TextEditor description={blogContent} onChangeEditorContent={onChangeEditorContent} />
+                                    {isEdit ? <TextEditor description={blogContent} onChangeEditorContent={onChangeEditorContent} /> : <CreateEditor description={blogContent} onChangeEditorContent={onChangeEditorContent} />}
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <TextField className={classes.title} variant='outlined' onChange={(e) => { handleMetaContentChange('meta-title', e) }} value={metaContent["meta-title"]} label="meta-title">
@@ -480,12 +580,14 @@ function CreateBlog(props) {
                             </Grid>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { createBlog() }}>
+                                    {!isEdit ? <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { createBlog() }}>
                                         Submit
-                                    </Button>
+                                    </Button> : <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { updateBlog() }}>
+                                            Update
+                                    </Button>}
                                 </Grid>
                             </Grid>
-                            {blogSuccess && <Grid container spacing={2}>
+                            {blogSuccess && !isEdit && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <div style={{ display: 'flex' }}>
                                         <div>Blog Created Successfully</div>
@@ -499,6 +601,12 @@ function CreateBlog(props) {
                     </Grid>
                 </Grid>
             </div>
+            <Dialog fullWidth={true}
+                maxWidth="sm" open={openDialog} onClose={() => { setOpenDialog(false) }}  >
+                <Paper elevation={2}>
+                    <img src={previewImg} height="400px" width="600px" />
+                </Paper>
+            </Dialog>
         </div >
     )
 }
@@ -506,8 +614,9 @@ function CreateBlog(props) {
 const mapDispatchToProps = (dispatch) => ({
     uploadThumbImg: bindActionCreators(uploadThumbImg, dispatch),
     uploadAuthorImg: bindActionCreators(uploadAuthorImg, dispatch),
-    createBlog: bindActionCreators(createBlog, dispatch)
-
+    createBlog: bindActionCreators(createBlog, dispatch),
+    updateBlog: bindActionCreators(updateBlog, dispatch),
+    clearNewBlogObj: bindActionCreators(clearNewBlogObj, dispatch)
 })
 
 const mapStateToProps = (state) => {
@@ -518,7 +627,8 @@ const mapStateToProps = (state) => {
         categoryList: list.categoryList,
         thumbImg: list.thumbImg,
         authorImg: list.authorImg,
-        newBlog: list.newBlog
+        newBlog: list.newBlog,
+        archivedBlogList: list.archivedBlogList
     };
 }
 
