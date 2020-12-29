@@ -88,6 +88,28 @@ export const listData = (state = initState, action) => {
                 ...state,
                 newBlog: action.payload,
             }
+        case 'ACTIVE_BLOG_LIST':
+            return {
+                ...state,
+                activeBlogList: action.payload,
+            }
+        case 'ARCHIVED_BLOG_LIST':
+            return {
+                ...state,
+                archivedBlogList: action.payload,
+            }
+        case 'ARCHIVE_BLOG':
+            return {
+                ...state,
+                activeBlogList: action.payload.blogList,
+                archivedBlogList: action.payload.archivedList
+            }
+        case 'UNARCHIVE_BLOG':
+            return {
+                ...state,
+                activeBlogList: action.payload.blogList,
+                archivedBlogList: action.payload.archivedList
+            }
         case 'RESET_CREATE_CATEGORY':
             return {
                 ...state, postCategoryAPIStatus: false,

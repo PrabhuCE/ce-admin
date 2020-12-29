@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Grid from '@material-ui/core/Grid';
+import PropTypes from 'prop-types';
 import { makeStyles } from '@material-ui/core/styles';
 import Paper from '@material-ui/core/Paper';
 import CircularProgress from '@material-ui/core/CircularProgress';
@@ -14,6 +15,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import CardActions from '@material-ui/core/CardActions';
 import Divider from '@material-ui/core/Divider';
 import InputLabel from '@material-ui/core/InputLabel';
+import moment from 'moment';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
@@ -34,7 +36,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import KeyboardArrowRightIcon from '@material-ui/icons/KeyboardArrowRight';
 import ListItemSecondaryAction from '@material-ui/core/ListItemSecondaryAction';
-import { blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData, resetCreateCategory } from '../../Store/Blog/actionCreator'
+import AppBar from '@material-ui/core/AppBar';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
+import Typography from '@material-ui/core/Typography';
+import Box from '@material-ui/core/Box';
+import { blogListData, categoryListData, unArchiveBlog, archiveBlog, getArchivedBlogsForCategory, getAppsList, getCategoryList, postCategoryData, resetCreateCategory, getActiveBlogsForCategory } from '../../Store/Blog/actionCreator'
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -172,39 +179,71 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
+function TabPanel(props) {
+    const { children, value, index, ...other } = props;
+
+    return (
+        <div
+            role="tabpanel"
+            hidden={value !== index}
+            id={`simple-tabpanel-${index}`}
+            aria-labelledby={`simple-tab-${index}`}
+            {...other}
+        >
+            {value === index && (
+                <Box p={3}>
+                    <Typography>{children}</Typography>
+                </Box>
+            )}
+        </div>
+    );
+}
+
+TabPanel.propTypes = {
+    children: PropTypes.node,
+    index: PropTypes.any.isRequired,
+    value: PropTypes.any.isRequired,
+};
+
+function a11yProps(index) {
+    return {
+        id: `simple-tab-${index}`,
+        'aria-controls': `simple-tabpanel-${index}`,
+    };
+}
+
 function BlogList(props) {
     const classes = useStyles();
     const [appsFetch, setAppsFetch] = useState(true);
     const [categoryFetch, setCategoryFetch] = useState(true);
-    const [appsList, setAppsList] = useState([])
+    const [appsList, setAppsList] = useState([]);
     const [blogList, setBlogList] = useState([]);
+    const [archBlogList, setArchBlogList] = useState([]);
     const [app, setApp] = useState(0);
     const [catList, setCatList] = useState([]);
-    const [catName, setCatName] = useState('')
-    const [catSelApp, setCatSelApp] = useState(0);
     const [selectedCatTitle, setSelectedCatTitle] = useState('');
-    const [selectedCat, setSelectedCat] = useState('');
-    const [dialogOpen, setDialogOpen] = useState(false);
-    const [appName, setAppName] = useState('PREP');
-    const [catEditFlag, setCatEditFlag] = useState(false);
-    const [createCatLoading, setCreateCatLoading] = useState(false);
+    const [selectedCat, setSelectedCat] = useState();
+    const [value, setValue] = useState(0);
 
     const editBlogContent = () => {
         props.history.push('/createBlog?blog_id=123')
     }
 
-    const handleCategoryChange = (e) => {
-        setCatName(e.target.value)
-    }
+    const handleTabChange = (event, newValue) => {
+        setValue(newValue);
+    };
+
 
     const handleCatSelection = (item) => {
         setSelectedCatTitle(item.category_name);
-
+        setSelectedCat(item.id);
+        props.getActiveBlogsForCategory(item.id);
+        props.getArchivedBlogsForCategory(item.id);
     }
 
     useEffect(() => {
         props.getAppsList();
-        props.getCategoryList(1);
+        props.getCategoryList();
     }, [])
 
     useEffect(() => {
@@ -214,79 +253,67 @@ function BlogList(props) {
     }, [props.appsList])
 
     useEffect(() => {
+
+
+    }, [props.activeBlogList, props.archivedBlogList])
+
+    const archiveBlog = (blog) => {
+        props.archiveBlog(blog.id, blogList, archBlogList);
+    }
+
+    const unArchiveBlog = (blog) => {
+        props.unArchiveBlog(blog.id, blogList, archBlogList);
+    }
+
+
+    useEffect(() => {
+
+        if (props.activeBlogList.length > 0 && selectedCat) {
+            setBlogList(props.activeBlogList);
+        } else {
+            setBlogList([])
+        }
+
+        if (props.archivedBlogList.length > 0 && selectedCat) {
+            setArchBlogList(props.archivedBlogList);
+        } else {
+            setArchBlogList([])
+        }
+
+    }, [props.list])
+
+    useEffect(() => {
         setCategoryFetch(false);
         if (props.categoryList.length > 0 && appsList.length > 0) {
             let categoryObj = props.categoryList.filter((item) => (item.application.id === appsList[0].id));
             setCatList(categoryObj);
             setSelectedCat(categoryObj.length > 0 && categoryObj[0].id)
+            if (categoryObj.length > 0) {
+                props.getActiveBlogsForCategory(categoryObj[0].id)
+                props.getArchivedBlogsForCategory(categoryObj[0].id)
+            } else {
+                setBlogList([])
+                setArchBlogList([])
+            }
             setSelectedCatTitle(categoryObj.length > 0 && categoryObj[0].category_name)
         }
     }, [props.categoryList])
 
-    useEffect(() => {
-        if (Object.keys(props.newCategory).length > 0) {
-            let categoryArr = [];
-            if (props.categoryList.length > 0 && props.appsList.length > 0) {
-                let catList = props.categoryList;
-                catList.push(props.newCategory.data);
-                categoryArr = catList.filter((item) => (item.application.id === appsList[0].id));
-            }
-            else {
-                categoryArr.push(props.newCategory.data)
-            }
-            setCatList(categoryArr);
-            setSelectedCat(categoryArr.length > 0 ? categoryArr[0].id : '')
-            setSelectedCatTitle(categoryArr.length > 0 && categoryArr[0].category_name)
-        }
-    }, [props.newCategory])
-
-    useEffect(() => {
-
-        if (props.postCategoryAPIStatus) {
-            setCreateCatLoading(false)
-            setDialogOpen(false)
-            setCatName('');
-        }
-    }, [props.postCategoryAPIStatus])
-
-
-    const handleDialogOpen = (type) => {
-        setCatSelApp(appsList.length > 0 && appsList[0].id)
-        if (type === 'create') {
-            setCatEditFlag(false);
-            setDialogOpen(true);
-        } else if (type === 'edit') {
-            setDialogOpen(true);
-            setCatEditFlag(true);
-        }
-    };
-
-    const handleCreateCategory = () => {
-        props.resetCreateCategory();
-        let payload = {
-            application: catSelApp,
-            category_name: catName,
-        };
-        setCreateCatLoading(true);
-        props.postCategoryData(payload);
-    }
-
-    const handleDialogClose = () => {
-        setDialogOpen(false);
-    };
-
-    const handleCatAppChange = (event) => {
-        setCatSelApp(event.target.value);
-    }
 
     const handleChange = (event) => {
         setApp(event.target.value);
-        let appName = event.target.value === 1 ? 'PREP' : event.target.value === 2 ? 'MyAthina' : 'TableVision';
-        setAppName(appName);
         if (props.categoryList.length > 0) {
             let categoryObj = props.categoryList.filter((item) => (item.application.id === event.target.value));
             setCatList(categoryObj);
             setSelectedCat(categoryObj.length > 0 && categoryObj[0].id)
+            if (categoryObj.length > 0) {
+                props.getActiveBlogsForCategory(categoryObj[0].id)
+                props.getArchivedBlogsForCategory(categoryObj[0].id)
+            }
+            else {
+                setBlogList([])
+                setArchBlogList([])
+            }
             setSelectedCatTitle(categoryObj.length > 0 && categoryObj[0].category_name)
         }
     };
@@ -298,7 +325,7 @@ function BlogList(props) {
                     <CardMedia
                         component="div"
                         className={classes.media}
-                        image={item.thumbnail_img}
+                        image={item.thumbnail_image}
                         title={item.title}
                         alt={item.title}
                     />
@@ -306,10 +333,10 @@ function BlogList(props) {
                         <div className={classes.infoCtr}>
                             <Grid container spacing={1}>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <div className={classes.itemDate}> {item.date_posted} </div>
+                                    <div className={classes.itemDate}> {moment(item.modified_date).format('DD-MMM-YYYY')} </div>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <div className={classes.itemDate}> {item.duration} </div>
+                                    <div className={classes.itemDate}>  {item.duration} Min </div>
                                 </Grid>
                             </Grid>
                         </div>
@@ -317,14 +344,16 @@ function BlogList(props) {
                             {item.title}
                         </div>
                         <div className={classes.itemDesc}>
-                            {item.desc && item.desc.length > 70 ? item.desc.substring(0, 70) + '...' : item.desc}
+                            {item.meta_description && item.meta_description.length > 70 ? item.meta_description.substring(0, 70) + '...' : item.meta_description}
                         </div>
                     </CardContent>
                 </CardActionArea>
                 <CardActions disableSpacing className={classes.cardActions}>
-                    <Button color="primary" variant='outlined' style={{ marginRight: '0.5rem' }}>
-                        Publish
-                    </Button>
+                    {item.is_active ? <Button color="primary" variant='outlined' onClick={() => { archiveBlog(item) }} style={{ marginRight: '0.5rem' }}>
+                        Archive
+                    </Button> : <Button color="primary" variant='outlined' onClick={() => { unArchiveBlog(item) }} style={{ marginRight: '0.5rem' }}>
+                            Activate
+                    </Button>}
                     <Button color="primary" variant='outlined' onClick={editBlogContent}>
                         Edit Blog
                     </Button>
@@ -387,84 +416,42 @@ function BlogList(props) {
                                 <div className={classes.catName}>
                                     Category -&nbsp;{selectedCatTitle}
                                 </div>
-                                <div className={classes.editIconCtr}>
-                                    <Tooltip title="Add Category">
-                                        <IconButton className={classes.icnBtn} onClick={() => { handleDialogOpen('create') }}>
-                                            <AddIcon className={classes.editIcon} />
-                                        </IconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Edit Category Details">
-                                        <IconButton className={classes.icnBtn} onClick={() => { handleDialogOpen('edit') }}>
-                                            <EditIcon className={classes.editIcon} />
-                                        </IconButton>
-                                    </Tooltip>
-                                </div>
+
                             </Paper>
                         </Grid>
                     </Grid>
-                    <Grid container spacing={2}>
-                        {blogList.length > 0 && blogList.map((item, index) => {
-                            return (
-                                <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
-                                    {renderBlogCard(item)}
-                                </Grid>)
-                        })}
-                    </Grid>
+                    <AppBar position="static">
+                        <Tabs value={value} onChange={handleTabChange} aria-label="simple tabs example">
+                            <Tab label="Active Blogs" {...a11yProps(0)} />
+                            <Tab label="Archived Blogs" {...a11yProps(1)} />
+                        </Tabs>
+                    </AppBar>
+                    <Paper elevation={2} className={classes.categoryCtr}>
+
+                        <TabPanel value={value} index={0} style={{ width: '100%' }}>
+                            <Grid container spacing={2}>
+                                {blogList.length > 0 && blogList.map((item, index) => {
+                                    return (
+                                        <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
+                                            {renderBlogCard(item)}
+                                        </Grid>)
+                                })}
+
+                            </Grid>
+                        </TabPanel>
+                        <TabPanel value={value} index={1} style={{ width: '100%' }}>
+                            <Grid container spacing={2}>
+                                {archBlogList.length > 0 && archBlogList.map((item, index) => {
+                                    return (
+                                        <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
+                                            {renderBlogCard(item)}
+                                        </Grid>)
+                                })}
+                            </Grid>
+                        </TabPanel>
+                    </Paper>
                 </Grid>
             </Grid>
-            <Dialog
-                fullWidth={true}
-                maxWidth="xs"
-                open={dialogOpen}
-                onClose={handleDialogClose}
-                aria-labelledby="max-width-dialog-title"
-            >
-                <DialogTitle id="max-width-dialog-title"> {catEditFlag ? "Update Category Info" : "Create New Category"}</DialogTitle>
-                <DialogContent>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12} sm={12} md={12} lg={12}>
-                            {catEditFlag ?
-                                <React.Fragment>
-                                    <div className={classes.selCatName}>{appName}</div>
-                                    <TextField className={classes.catTitle} variant='outlined' value={catName} onChange={handleCategoryChange} label="Category Title">
-                                    </TextField>
-                                </React.Fragment>
-                                : <React.Fragment>
-                                    <FormControl variant="outlined" className={classes.formControl}>
-                                        <InputLabel id="demo-simple-select-outlined-label">App</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-outlined-label"
-                                            id="demo-simple-select-outlined"
-                                            value={catSelApp}
-                                            onChange={handleCatAppChange}
-                                            label="App"
-                                        >
-                                            {appsList.length > 0 && appsList.map((item, index) => {
-                                                return (
-                                                    <MenuItem key={index} value={item.id}>{item.app_name == null ? 'Invalid App Name' : item.app_name}</MenuItem>
-                                                )
-                                            })}
-                                        </Select>
-                                    </FormControl>
-                                    <TextField className={classes.catTitle} variant='outlined' value={catName} onChange={handleCategoryChange} label="Category Title">
-                                    </TextField>
-                                </React.Fragment>}
-                        </Grid>
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    {catEditFlag ?
-                        <Button color="primary" variant='outlined'>
-                            Update
-                    </Button>
-                        : <Button onClick={() => { handleCreateCategory() }} disabled={createCatLoading} color="primary" variant='outlined'>
-                            Submit
-                            </Button>}
-                    <Button onClick={handleDialogClose} color="primary" variant='outlined'>
-                        Cancel
-                    </Button>
-                </DialogActions>
-            </Dialog>
         </div >)
 }
 
@@ -472,17 +459,25 @@ const mapDispatchToProps = (dispatch) => ({
     getAppsList: bindActionCreators(getAppsList, dispatch),
     getCategoryList: bindActionCreators(getCategoryList, dispatch),
     postCategoryData: bindActionCreators(postCategoryData, dispatch),
-    resetCreateCategory: bindActionCreators(resetCreateCategory, dispatch)
+    resetCreateCategory: bindActionCreators(resetCreateCategory, dispatch),
+    getActiveBlogsForCategory: bindActionCreators(getActiveBlogsForCategory, dispatch),
+    getArchivedBlogsForCategory: bindActionCreators(getArchivedBlogsForCategory, dispatch),
+    archiveBlog: bindActionCreators(archiveBlog, dispatch),
+    unArchiveBlog: bindActionCreators(unArchiveBlog, dispatch)
 })
 
 const mapStateToProps = (state) => {
+    const list = state.lists;
     return {
-        appsList: state.lists.appsList,
-        categoryList: state.lists.categoryList,
-        newCategory: state.lists.newCategory,
-        appsAPIStatus: state.lists.appsAPIStatus,
-        categoryAPIStatus: state.lists.categoryAPIStatus,
-        postCategoryAPIStatus: state.lists.postCategoryAPIStatus,
+        list,
+        appsList: list.appsList,
+        categoryList: list.categoryList,
+        newCategory: list.newCategory,
+        appsAPIStatus: list.appsAPIStatus,
+        categoryAPIStatus: list.categoryAPIStatus,
+        postCategoryAPIStatus: list.postCategoryAPIStatus,
+        activeBlogList: list.activeBlogList,
+        archivedBlogList: list.archivedBlogList
     };
 }
 

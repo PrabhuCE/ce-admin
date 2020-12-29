@@ -161,6 +161,31 @@ export const getCategoryList = (payload) => {
     };
 }
 
+export const getCategoryListForApp = (payload) => {
+    let url = apiConfig.blog.getCategoryList + `?application_id=${payload}`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "FETCH_APP_CATEGORY_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+                console.log("Error")
+            });
+    };
+}
+
+
 export const createApp = (payload, existingList) => {
 
     let url = apiConfig.apps.createApps;
@@ -567,7 +592,7 @@ export const getBlogListData = (payload, successCB, failureCB) => {
 
 export const getActiveBlogsForCategory = (category) => {
 
-    let url = apiConfig.blog.blogListing + `${category}/`;
+    let url = apiConfig.blog.blogListing + `?category_id=${category}`;
     let header = {
         headers: {
             Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
@@ -579,6 +604,7 @@ export const getActiveBlogsForCategory = (category) => {
                 return response.data
             })
             .then(data => {
+                console.log("test", data)
                 dispatch({
                     type: "ACTIVE_BLOG_LIST",
                     payload: data.results
@@ -615,6 +641,78 @@ export const getArchivedBlogsForCategory = (category) => {
             });
     };
 
+}
+
+
+export const archiveBlog = (payload, existingList, archBlogList) => {
+
+    let url = apiConfig.blog.blogListing + `${payload}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.delete(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                let newList = existingList.filter(item => item.id !== payload);
+                let archivedBlog = existingList.find(item => item.id === payload);
+                archivedBlog.is_active = false;
+                archBlogList.push(archivedBlog);
+                let blogObj = {
+                    blogList: newList,
+                    archivedList: archBlogList
+                }
+                dispatch({
+                    type: "ARCHIVE_BLOG",
+                    payload: blogObj
+                })
+
+            })
+            .catch(error => {
+
+            });
+    };
+}
+
+
+
+export const unArchiveBlog = (payload, existingList, archBlogList) => {
+
+    let url = apiConfig.blog.blogListing + `${payload}/`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    let inp = {}
+
+    return (dispatch) => {
+        return axios.post(url, inp, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                let newList = archBlogList.filter(item => item.id !== payload);
+                let unArchivedBlog = archBlogList.find(item => item.id === payload);
+                unArchivedBlog.is_active = true;
+                existingList.push(unArchivedBlog);
+                let blogObj = {
+                    blogList: existingList,
+                    archivedList: newList
+                }
+                dispatch({
+                    type: "UNARCHIVE_BLOG",
+                    payload: blogObj
+                })
+            })
+            .catch(error => {
+
+            });
+    };
 }
 
 
