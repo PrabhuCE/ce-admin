@@ -1,6 +1,9 @@
 const initState = {
     appsList: [],
+    archivedAppsList: [],
     categoryList: [],
+    activeCatList: [],
+    archivedCatList: [],
     newApp: {},
     newCategory: {},
     thumbImg: '',
@@ -33,6 +36,11 @@ export const listData = (state = initState, action) => {
                 categoryAPIStatus: true,
                 postCategoryAPIStatus: false,
             }
+        case 'FETCH_ARCHIVED_APPS_LIST':
+            return {
+                ...state,
+                archivedAppsList: action.payload,
+            }
         case 'CREATE_APP_DATA':
             return {
                 ...state,
@@ -46,12 +54,14 @@ export const listData = (state = initState, action) => {
         case 'ARCHIVE_APP':
             return {
                 ...state,
-                appsList: action.payload,
+                appsList: action.payload.appsList,
+                archivedAppsList: action.payload.archivedList,
             }
         case 'UN_ARCHIVE_APP':
             return {
                 ...state,
-                appsList: action.payload,
+                appsList: action.payload.appsList,
+                archivedAppsList: action.payload.archivedList,
             }
         case 'CREATE_CATEGORY_DATA':
             return {
@@ -66,12 +76,24 @@ export const listData = (state = initState, action) => {
         case 'ARCHIVE_CAT':
             return {
                 ...state,
-                categoryList: action.payload,
+                activeCatList: action.payload.activeCatList,
+                archivedCatList: action.payload.archivedCatList,
             }
         case 'UN_ARCHIVE_CAT':
             return {
                 ...state,
-                categoryList: action.payload,
+                activeCatList: action.payload.activeCatList,
+                archivedCatList: action.payload.archivedCatList,
+            }
+        case 'FETCH_ARCHIVED_CAT_LIST':
+            return {
+                ...state,
+                archivedCatList: action.payload,
+            }
+        case 'FETCH_ACTIVE_CAT_LIST':
+            return {
+                ...state,
+                activeCatList: action.payload,
             }
         case 'THUMB_IMG':
             return {

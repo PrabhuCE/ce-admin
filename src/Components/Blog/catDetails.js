@@ -25,7 +25,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import CatDetails from './catDetails';
 import Header from '../Header';
-import { editCatInfo, postCategoryData, archiveCat, unArchiveCat } from '../../Store/Blog/actionCreator'
+import { editCatInfo, postCategoryData, archiveCat, unArchiveCat, getArchivedCategory, getActiveCategory } from '../../Store/Blog/actionCreator'
 import { SettingsApplications } from '@material-ui/icons';
 
 
@@ -115,17 +115,35 @@ function BlogConfig(props) {
     const [catName, setCatName] = useState('');
     const [catSelApp, setCatSelApp] = useState('');
     const [selectedCat, setSelectedCat] = useState();
-    const [selectedApp, setSelectedApp] = useState({})
+    const [selectedApp, setSelectedApp] = useState({});
+    const [filterCat, setFilterCat] = useState(0);
+
+    const handleCatFilterChange = (e) => {
+        setFilterCat(e.target.value)
+        if (e.target.value == 1) {
+            props.getActiveCategory(catSelApp)
+        } else if (e.target.value == 2) {
+            props.getArchivedCategory(catSelApp)
+        }
+    }
 
     useEffect(() => {
-        setAppList(props.appsList);
-        setSelectedApp(props.appsList.length > 0 && props.appsList[0])
-        setCatSelApp(props.appsList.length > 0 && props.appsList[0].id)
+        if (filterCat == 2) {
+            setCategoryList(props.archivedCatList)
+        }
+    }, [props.archivedCatList])
+
+    useEffect(() => {
+        if (props.appsList.length > 0) {
+            setAppList(props.appsList);
+            setSelectedApp(props.appsList[0])
+            setCatSelApp(props.appsList[0].id)
+        }
     }, [props.appsList])
 
     useEffect(() => {
-        setCategories(props.categoryList)
-    }, [props.categoryList])
+        setCategoryList(props.activeCatList)
+    }, [props.activeCatList])
 
     useEffect(() => {
         setCatName('');
@@ -135,9 +153,8 @@ function BlogConfig(props) {
     }, [props.list])
 
     useEffect(() => {
-        if (categories.length > 0) {
-            let catList = categories.filter(item => (item.application.id == catSelApp));
-            setCategoryList(catList)
+        if (catSelApp !== '') {
+            props.getActiveCategory(catSelApp)
         }
     }, [catSelApp])
 
@@ -166,6 +183,7 @@ function BlogConfig(props) {
     }
 
     const handleCatAppChange = (event) => {
+        setFilterCat(0)
         setCatSelApp(event.target.value);
     }
 
@@ -174,7 +192,7 @@ function BlogConfig(props) {
         let payload = {
             cat_id: cat.id
         };
-        props.archiveCat(payload, props.categoryList);
+        props.archiveCat(payload, props.activeCatList, props.archivedCatList);
     }
 
     const handleUnArchiveCat = (cat) => {
@@ -182,7 +200,7 @@ function BlogConfig(props) {
         let payload = {
             cat_id: cat.id
         };
-        props.unArchiveCat(payload, props.categoryList);
+        props.unArchiveCat(payload, props.activeCatList, props.archivedCatList);
     }
 
     const handleEditCat = (cat) => {
@@ -197,12 +215,13 @@ function BlogConfig(props) {
             category: selectedCat,
             cat_name: catName
         };
-        props.editCatInfo(payload, props.categoryList);
+        props.editCatInfo(payload, props.archivedCatList);
     }
 
     return (
         <React.Fragment>
             <Header />
+
             <div className={classes.root}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} xm={12} md={12} lg={12}>
@@ -226,6 +245,23 @@ function BlogConfig(props) {
                                             })}
                                         </Select>
                                     </FormControl>
+
+                                    <FormControl variant="outlined" className={classes.formControl}>
+                                        <InputLabel id="demo-simple-select-outlined-label">Type</InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-outlined-label"
+                                            id="demo-simple-select-outlined"
+                                            value={filterCat}
+                                            onChange={handleCatFilterChange}
+                                            label="Category Type"
+                                        >
+                                            <MenuItem key={0} value={0}>--Select--</MenuItem>
+                                            <MenuItem key={1} value={1}>Active </MenuItem>
+                                            <MenuItem key={2} value={2}>Archived </MenuItem>
+
+                                        </Select>
+                                    </FormControl>
+
                                     {createNewCat || editCatName ?
                                         <div className={classes.textFieldCtr}>
                                             <TextField id="outlined-basic" label="Category Name" variant="outlined" value={catName} onChange={(e) => { handleCatNameChange(e) }} className={classes.txtField} />
@@ -284,7 +320,9 @@ const mapDispatchToProps = (dispatch) => ({
     postCategoryData: bindActionCreators(postCategoryData, dispatch),
     editCatInfo: bindActionCreators(editCatInfo, dispatch),
     archiveCat: bindActionCreators(archiveCat, dispatch),
-    unArchiveCat: bindActionCreators(unArchiveCat, dispatch)
+    unArchiveCat: bindActionCreators(unArchiveCat, dispatch),
+    getArchivedCategory: bindActionCreators(getArchivedCategory, dispatch),
+    getActiveCategory: bindActionCreators(getActiveCategory, dispatch)
 })
 
 const mapStateToProps = (state) => {
@@ -292,7 +330,8 @@ const mapStateToProps = (state) => {
     return {
         list,
         appsList: list.appsList,
-        categoryList: list.categoryList
+        activeCatList: list.activeCatList,
+        archivedCatList: list.archivedCatList
     }
 }
 

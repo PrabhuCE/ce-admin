@@ -46,6 +46,31 @@ export const getAppsList = () => {
     };
 }
 
+export const getArchivedAppsList = () => {
+    let url = apiConfig.apps.getAppsList + `?archive=true`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+
+                dispatch({
+                    type: "FETCH_ARCHIVED_APPS_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+                throw (error);
+            });
+    };
+}
+
 export const clearNewBlogObj = () => {
     return (dispatch) => {
         dispatch({
@@ -254,7 +279,7 @@ export const editAppInfo = (payload, existingList) => {
     };
 }
 
-export const archiveApp = (payload, existingList) => {
+export const archiveApp = (payload, archivedList, existingList) => {
 
     let url = apiConfig.apps.archiveApp + `${payload.app_id}/`;
     let header = {
@@ -269,10 +294,18 @@ export const archiveApp = (payload, existingList) => {
                 return response.data
             })
             .then(data => {
-                existingList.find(item => item.id === payload.app_id).is_active = false;
+                let newList = existingList.filter(item => item.id !== payload.app_id);
+                let archivedApp = existingList.find(item => item.id === payload.app_id);
+                archivedApp.is_active = false;
+
+                archivedList.push(archivedApp);
+                let appsObj = {
+                    appsList: newList,
+                    archivedList: archivedList
+                }
                 dispatch({
                     type: "ARCHIVE_APP",
-                    payload: existingList
+                    payload: appsObj
                 })
 
             })
@@ -284,7 +317,7 @@ export const archiveApp = (payload, existingList) => {
 
 
 
-export const unArchiveApp = (payload, existingList) => {
+export const unArchiveApp = (payload, archivedAppsList, appsList) => {
 
     let url = apiConfig.apps.unArchiveApp + `${payload.app_id}/`;
     let header = {
@@ -299,12 +332,19 @@ export const unArchiveApp = (payload, existingList) => {
                 return response.data
             })
             .then(data => {
-                existingList.find(item => item.id === payload.app_id).is_active = true;
+
+                let newArchivedList = archivedAppsList.filter(item => item.id !== payload.app_id);
+                let unArchivedApp = archivedAppsList.find(item => item.id === payload.app_id);
+                unArchivedApp.is_active = true;
+                appsList.push(unArchivedApp);
+                let appsObj = {
+                    appsList: appsList,
+                    archivedList: newArchivedList
+                }
                 dispatch({
                     type: "UN_ARCHIVE_APP",
-                    payload: existingList
+                    payload: appsObj
                 })
-
             })
             .catch(error => {
 
@@ -368,8 +408,7 @@ export const editCatInfo = (payload, existingCatList) => {
     };
 }
 
-export const archiveCat = (payload, existingList) => {
-
+export const archiveCat = (payload, activeCatList, archivedCatList) => {
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
     let header = {
         headers: {
@@ -382,12 +421,19 @@ export const archiveCat = (payload, existingList) => {
                 return response.data
             })
             .then(data => {
-                existingList.find(item => item.id === payload.cat_id).is_active = false;
+
+                let newList = activeCatList.filter(item => item.id !== payload.cat_id);
+                let archivedCat = activeCatList.find(item => item.id === payload.cat_id);
+                archivedCat.is_active = false;
+                archivedCatList.push(archivedCat);
+                let appsObj = {
+                    activeCatList: newList,
+                    archivedCatList: archivedCatList
+                }
                 dispatch({
                     type: "ARCHIVE_CAT",
-                    payload: existingList
+                    payload: appsObj
                 })
-
             })
             .catch(error => {
 
@@ -395,31 +441,87 @@ export const archiveCat = (payload, existingList) => {
     };
 }
 
-
-
-export const unArchiveCat = (payload, existingList) => {
-
+export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
     let header = {
         headers: {
             Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
         },
     };
-
     return (dispatch) => {
         return axios.post(url, payload, header)
             .then(response => {
                 return response.data
             })
             .then(data => {
-                existingList.find(item => item.id === payload.cat_id).is_active = true;
+                let newList = archivedCatList.filter(item => item.id !== payload.cat_id);
+                let activeCat = archivedCatList.find(item => item.id === payload.cat_id);
+                activeCat.is_active = true;
+                activeCatList.push(activeCat);
+                let appsObj = {
+                    activeCatList: activeCatList,
+                    archivedCatList: newList
+                }
                 dispatch({
-                    type: "UN_ARCHIVE_CAT",
-                    payload: existingList
+                    type: "ARCHIVE_CAT",
+                    payload: appsObj
                 })
+
+                // existingList.find(item => item.id === payload.cat_id).is_active = true;
+                // dispatch({
+                //     type: "UN_ARCHIVE_CAT",
+                //     payload: existingList
+                // })
             })
             .catch(error => {
 
+            });
+    };
+}
+
+export const getActiveCategory = (payload) => {
+    let url = apiConfig.categories.catURL + `?application_id=${payload}`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "FETCH_ACTIVE_CAT_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+            });
+    };
+}
+
+
+export const getArchivedCategory = (payload) => {
+    let url = apiConfig.categories.catURL + `?archive=true&application_id=${payload}`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "FETCH_ARCHIVED_CAT_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
             });
     };
 }

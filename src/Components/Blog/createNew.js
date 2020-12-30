@@ -4,6 +4,10 @@ import TextField from '@material-ui/core/TextField';
 import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
 import Button from '@material-ui/core/Button';
+import { Route } from "react-router-dom";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import { Link as RouterLink } from "react-router-dom";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
@@ -31,7 +35,11 @@ import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
     content: {
-        marginTop: '6rem'
+        marginTop: '2rem'
+    },
+    brdcrmbWrapper: {
+        marginTop: '5rem',
+        marginLeft: '1rem'
     },
     title: {
         width: '100%'
@@ -82,7 +90,22 @@ const useStyles = makeStyles((theme) => ({
     prevIcn: {
         margin: '1rem 0.5rem',
         cursor: 'pointer'
-    }
+    },
+    brdCrmbPrimary: {
+        color: '#2368a9',
+        fontWeight: 500,
+
+        textDecoration: "none",
+        "&:hover": {
+            textDecoration: "underline",
+        },
+    },
+    brdCrmbSeparator: {
+        color: '#2e8eec',
+    },
+    brdCrmbSecondary: {
+        color: '#2e8eec',
+    },
 }))
 
 
@@ -127,6 +150,7 @@ function CreateBlog(props) {
     const [editThumbURL, setEditThumbURL] = useState();
     const [editAuthImgURL, setEditAuthImgURL] = useState();
     const [openDialog, setOpenDialog] = useState(false);
+
 
 
     useEffect(() => {
@@ -400,10 +424,34 @@ function CreateBlog(props) {
     }
 
 
+
+    const SimpleBreadcrumbs = () => {
+        const classes = useStyles();
+        return (
+            <Route>
+                {
+                    <Breadcrumbs separator={<NavigateNextIcon className={classes.brdCrmbSeparator} fontSize="small" />} aria-label="Breadcrumb">
+                        <RouterLink className={classes.brdCrmbPrimary} to="/">
+                            Home
+                        </RouterLink>
+                        <RouterLink className={classes.brdCrmbPrimary} to="/blog">
+                            Blogs
+                        </RouterLink>
+                    </Breadcrumbs>
+                }
+            </Route>
+        );
+    };
+
+
     return (
         <div>
             <Header />
+            <div className={classes.brdcrmbWrapper}>
+                {SimpleBreadcrumbs()}
+            </div>
             <div className={classes.content}>
+
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={12} lg={2}>
 

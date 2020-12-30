@@ -22,17 +22,25 @@ import Card from "@material-ui/core/Card";
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { Route } from "react-router-dom";
+import Breadcrumbs from "@material-ui/core/Breadcrumbs";
+import { Link as RouterLink } from "react-router-dom";
+import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import CatDetails from './catDetails';
 import Header from '../Header';
-import { createApp, editAppInfo, unArchiveApp, archiveApp, blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData, resetCreateCategory } from '../../Store/Blog/actionCreator'
+import { createApp, editAppInfo, unArchiveApp, archiveApp, getArchivedAppsList, blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData, resetCreateCategory } from '../../Store/Blog/actionCreator'
 
 
 const useStyles = makeStyles((theme) => ({
     root: {
-        marginTop: '6rem'
+        marginTop: '2rem'
     },
     title: {
         width: '100%'
@@ -89,18 +97,46 @@ const useStyles = makeStyles((theme) => ({
         margin: '0.5rem'
     },
     btn: {
-        margin: '1rem'
+        margin: '0.5rem 1rem'
+    },
+    formControl: {
+        margin: '0.5rem 1rem'
     },
     ctrHdr: {
         display: 'flex',
         margin: '0.5rem',
         justifyContent: 'space-between'
     },
+    appsFilterCtr: {
+        display: 'flex',
+        margin: '0.5rem',
+    },
     appsLbl: {
         margin: '1rem',
         fontSize: '1rem',
         fontWeight: 600
-    }
+    },
+    appsRoot: {
+        flexGrow: 1
+    },
+    brdcrmbWrapper: {
+        marginTop: '5rem',
+        marginLeft: '1rem'
+    },
+    brdCrmbPrimary: {
+        color: '#2368a9',
+        fontWeight: 500,
+        textDecoration: "none",
+        "&:hover": {
+            textDecoration: "underline",
+        },
+    },
+    brdCrmbSeparator: {
+        color: '#2e8eec',
+    },
+    brdCrmbSecondary: {
+        color: '#2e8eec',
+    },
 }))
 
 function BlogConfig(props) {
@@ -111,7 +147,8 @@ function BlogConfig(props) {
     const [createNewApp, setCreateNewApp] = useState(false);
     const [editAppName, setEditAppName] = useState(false);
     const [appName, setAppName] = useState('');
-    const [selectedApp, setSelectedApp] = useState()
+    const [selectedApp, setSelectedApp] = useState();
+    const [filterType, setFilterType] = useState(0);
 
     useEffect(() => {
         setAppList(props.appsList);
@@ -122,6 +159,12 @@ function BlogConfig(props) {
         setCreateNewApp(false);
         setEditAppName(false);
     }, [props.list])
+
+    useEffect(() => {
+        if (filterType == 2) {
+            setAppList(props.archivedAppsList)
+        }
+    }, [props.archivedAppsList])
 
 
     const handleClick = (type) => {
@@ -144,8 +187,6 @@ function BlogConfig(props) {
         props.createApp(payload, props.appsList);
     }
 
-
-
     const handleEditApp = (app) => {
         setEditAppName(true)
         setAppName(app.app_name)
@@ -163,20 +204,51 @@ function BlogConfig(props) {
         let payload = {
             app_id: app.id
         };
-        props.archiveApp(payload, props.appsList);
+        props.archiveApp(payload, props.archivedAppsList, props.appsList);
     }
 
     const handleUnArchiveApp = (app) => {
         let payload = {
             app_id: app.id
         };
-        props.unArchiveApp(payload, props.appsList);
+        props.unArchiveApp(payload, props.archivedAppsList, props.appsList);
     }
+
+    const handleFilterChange = (event) => {
+        setFilterType(event.target.value)
+        if (event.target.value == 1) {
+            setAppList(props.appsList);
+        } else if (event.target.value == 2) {
+            props.getArchivedAppsList();
+        }
+    }
+
+    const SimpleBreadcrumbs = () => {
+        const classes = useStyles();
+        return (
+            <Route>
+                {
+                    <Breadcrumbs separator={<NavigateNextIcon className={classes.brdCrmbSeparator} fontSize="small" />} aria-label="Breadcrumb">
+                        <RouterLink className={classes.brdCrmbPrimary} to="/">
+                            Home
+                        </RouterLink>
+                        <RouterLink className={classes.brdCrmbPrimary} to="/blog">
+                            Blogs
+                        </RouterLink>
+                    </Breadcrumbs>
+                }
+            </Route>
+        );
+    };
+
 
     return (
 
         <React.Fragment>
             <Header />
+            <div className={classes.brdcrmbWrapper}>
+                {SimpleBreadcrumbs()}
+            </div>
             <div className={classes.root}>
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={2} lg={2}>
@@ -212,7 +284,23 @@ function BlogConfig(props) {
                                         </Paper> :
                                             <div className={classes.ctrHdr}>
                                                 <div className={classes.appsLbl}>Apps</div>
-                                                <Button variant="outlined" color="primary" onClick={() => { handleCreateNew() }} className={classes.btn}>Add New</Button>
+                                                <div className={classes.appsFilterCtr}>
+                                                    <FormControl variant="outlined" className={classes.formControl}>
+                                                        <InputLabel id="demo-simple-select-outlined-label">Type</InputLabel>
+                                                        <Select
+                                                            labelId="demo-simple-select-outlined-label"
+                                                            id="demo-simple-select-outlined"
+                                                            value={filterType}
+                                                            onChange={handleFilterChange}
+                                                            label="Type"
+                                                        >
+
+                                                            <MenuItem key={0} value={0}>--Select--</MenuItem>
+                                                            <MenuItem key={1} value={1}>Active Apps</MenuItem>
+                                                            <MenuItem key={2} value={2}>Archived Apps</MenuItem>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <Button variant="outlined" color="primary" onClick={() => { handleCreateNew() }} className={classes.btn}>Add New</Button></div>
                                             </div>}
                                         <TableContainer component={Paper}>
                                             <Table className={classes.table} aria-label="simple table">
@@ -264,14 +352,16 @@ const mapDispatchToProps = (dispatch) => ({
     createApp: bindActionCreators(createApp, dispatch),
     editAppInfo: bindActionCreators(editAppInfo, dispatch),
     archiveApp: bindActionCreators(archiveApp, dispatch),
-    unArchiveApp: bindActionCreators(unArchiveApp, dispatch)
+    unArchiveApp: bindActionCreators(unArchiveApp, dispatch),
+    getArchivedAppsList: bindActionCreators(getArchivedAppsList, dispatch)
 })
 
 const mapStateToProps = (state) => {
     const list = state.lists;
     return {
         list,
-        appsList: list.appsList
+        appsList: list.appsList,
+        archivedAppsList: list.archivedAppsList
     }
 }
 
