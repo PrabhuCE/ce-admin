@@ -301,7 +301,7 @@ function BlogConfig(props) {
                                                 </TableCell>
                                                 <TableCell align="center" component="th" scope="row">
                                                     {row.is_active ? <Tooltip title="Archive app"><ArchiveOutlinedIcon className={classes.arIcn} onClick={() => { handleArchiveCat(row) }} /></Tooltip> : <Tooltip title="UnArchive app"><UnarchiveOutlinedIcon className={classes.unarIcn} onClick={() => { handleUnArchiveCat(row) }} /></Tooltip>}
-                                                    <Tooltip title="Edit App Name"><EditIcon className={classes.icn} onClick={() => { handleEditCat(row) }} /></Tooltip>
+                                                    {!row.is_active && <Tooltip title="Edit App Name"><EditIcon className={classes.icn} onClick={() => { handleEditCat(row) }} /></Tooltip>}
                                                 </TableCell>
                                             </TableRow>
                                         ))}

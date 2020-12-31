@@ -343,9 +343,6 @@ function BlogList(props) {
                         <div className={classes.title}>
                             {item.title}
                         </div>
-                        <div className={classes.itemDesc}>
-                            {item.meta_description && item.meta_description.length > 70 ? item.meta_description.substring(0, 70) + '...' : item.meta_description}
-                        </div>
                     </CardContent>
                 </CardActionArea>
                 <CardActions disableSpacing className={classes.cardActions}>
