@@ -1,4 +1,5 @@
 import React, { Component, useEffect } from "react";
+import { connect } from 'react-redux';
 import { PrivateRoute, BlogPrivateRoute } from '../../router';
 import Login from "../UserAuth/login";
 import AppList from "../Apps";
@@ -11,6 +12,7 @@ import Blog from "../Blog";
 import BlogCreate from '../Blog/createNew';
 import BlogConfig from '../Blog/blogConfig';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import AlertMsg from '../Shared/alertMessage';
 
 function Layout(props) {
   return (
@@ -44,8 +46,13 @@ function Layout(props) {
         />
         <Route path="/try" history={props.history} component={Try} />
       </Switch>
+      <AlertMsg state={alert.state} message={alert.message} type={alert.type} />
     </Router>
   );
 }
-
-export default Layout;
+const mapStateToProps = (state) => {
+  return {
+    alert: state.alert,
+  };
+};
+export default connect(mapStateToProps, {})(Layout);

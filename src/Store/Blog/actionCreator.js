@@ -4,6 +4,7 @@ import Image1 from '../../Static/1.png';
 import Image2 from '../../Static/2.png';
 import Image3 from '../../Static/3.jpg';
 import Image4 from '../../Static/4.png';
+import { showAlertMsg } from '../Alert/actionCreator'
 
 const apps = {
     results: [{
@@ -367,11 +368,15 @@ export const postCategoryData = (payload, existingCatList) => {
             })
             .then(data => {
                 existingCatList.push(data.data);
-                console.log("existingList", existingCatList);
                 dispatch({
                     type: "CREATE_CATEGORY_DATA",
                     payload: existingCatList
                 })
+                let alert = {
+                    message: 'Added category Successfully',
+                    type: 'success',
+                };
+
             })
             .catch(error => {
 

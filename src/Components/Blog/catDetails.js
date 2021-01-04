@@ -179,7 +179,7 @@ function BlogConfig(props) {
             application: catSelApp,
             category_name: catName,
         };
-        props.postCategoryData(payload, props.categoryList);
+        props.postCategoryData(payload, props.activeCatList);
     }
 
     const handleCatAppChange = (event) => {

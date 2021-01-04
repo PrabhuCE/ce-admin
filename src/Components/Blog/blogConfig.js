@@ -35,6 +35,7 @@ import { Link as RouterLink } from "react-router-dom";
 import NavigateNextIcon from "@material-ui/icons/NavigateNext";
 import CatDetails from './catDetails';
 import Header from '../Header';
+import { showAlertMsg } from '../../Store/Alert/actionCreator';
 import { createApp, editAppInfo, unArchiveApp, archiveApp, getArchivedAppsList, blogListData, categoryListData, getAppsList, getCategoryList, postCategoryData, resetCreateCategory } from '../../Store/Blog/actionCreator'
 
 
@@ -353,7 +354,8 @@ const mapDispatchToProps = (dispatch) => ({
     editAppInfo: bindActionCreators(editAppInfo, dispatch),
     archiveApp: bindActionCreators(archiveApp, dispatch),
     unArchiveApp: bindActionCreators(unArchiveApp, dispatch),
-    getArchivedAppsList: bindActionCreators(getArchivedAppsList, dispatch)
+    getArchivedAppsList: bindActionCreators(getArchivedAppsList, dispatch),
+    showAlertMsg: bindActionCreators(showAlertMsg, dispatch)
 })
 
 const mapStateToProps = (state) => {
@@ -361,7 +363,7 @@ const mapStateToProps = (state) => {
     return {
         list,
         appsList: list.appsList,
-        archivedAppsList: list.archivedAppsList
+        archivedAppsList: list.archivedAppsList,
     }
 }
 
