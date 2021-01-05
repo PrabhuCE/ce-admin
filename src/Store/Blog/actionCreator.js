@@ -433,7 +433,7 @@ export const archiveCat = (payload, activeCatList, archivedCatList) => {
                 archivedCatList.push(archivedCat);
                 let appsObj = {
                     activeCatList: newList,
-                    archivedCatList: archivedCatList
+                    archivedCatList: archivedCatList,
                 }
                 dispatch({
                     type: "ARCHIVE_CAT",
@@ -447,6 +447,7 @@ export const archiveCat = (payload, activeCatList, archivedCatList) => {
 }
 
 export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
+    console.log("archivedCatList", archivedCatList);
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
     let header = {
         headers: {
@@ -459,24 +460,24 @@ export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
                 return response.data
             })
             .then(data => {
+
                 let newList = archivedCatList.filter(item => item.id !== payload.cat_id);
+                let archiveListOfApp = newList.filter(item => item.id == payload.cat_id);
                 let activeCat = archivedCatList.find(item => item.id === payload.cat_id);
                 activeCat.is_active = true;
                 activeCatList.push(activeCat);
+
+
                 let appsObj = {
                     activeCatList: activeCatList,
-                    archivedCatList: newList
+                    archivedCatList: newList,
+                    archCatListForApp: archiveListOfApp
                 }
+
                 dispatch({
-                    type: "ARCHIVE_CAT",
+                    type: "UN_ARCHIVE_CAT",
                     payload: appsObj
                 })
-
-                // existingList.find(item => item.id === payload.cat_id).is_active = true;
-                // dispatch({
-                //     type: "UN_ARCHIVE_CAT",
-                //     payload: existingList
-                // })
             })
             .catch(error => {
 
@@ -507,8 +508,32 @@ export const getActiveCategory = (payload) => {
     };
 }
 
+export const getAllArchivedCategory = () => {
+    let url = apiConfig.categories.catURL + `?archive=true`;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+    return (dispatch) => {
+        return axios.get(url, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
 
-export const getArchivedCategory = (payload) => {
+                dispatch({
+                    type: "FETCH_ALL_ARCHIVED_CAT_LIST",
+                    payload: data.results
+                })
+            })
+            .catch(error => {
+            });
+    };
+}
+
+
+export const getArchivedCategory = (payload, archivedList) => {
     let url = apiConfig.categories.catURL + `?archive=true&application_id=${payload}`;
     let header = {
         headers: {
@@ -521,9 +546,14 @@ export const getArchivedCategory = (payload) => {
                 return response.data
             })
             .then(data => {
+                let archivedCat = archivedList.filter(item => item.application.id == payload);
+                let archivedData = {
+                    archivedCat: archivedCat,
+                    archivedResults: data.results
+                }
                 dispatch({
                     type: "FETCH_ARCHIVED_CAT_LIST",
-                    payload: data.results
+                    payload: archivedData
                 })
             })
             .catch(error => {
@@ -586,6 +616,34 @@ export const uploadAuthorImg = (payload) => {
 
             });
     };
+}
+
+
+export const validateURLSlug = (payload) => {
+    let url = apiConfig.blog.validateSlug;
+    let header = {
+        headers: {
+            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+        },
+    };
+
+    return (dispatch) => {
+        return axios.post(url, payload, header)
+            .then(response => {
+                return response.data
+            })
+            .then(data => {
+                dispatch({
+                    type: "VALIDATE_SLUG",
+                    payload: data
+                })
+            })
+            .catch(error => {
+
+            });
+    };
+
+
 }
 
 export const createBlog = (payload) => {
@@ -846,7 +904,7 @@ export const updateBlog = (id, payload, existingList) => {
                 return response.data
             })
             .then(data => {
-                let newList = existingList.filter(item => item.id !== payload);
+                let newList = existingList.filter(item => item.id !== id);
                 newList.push(data.data);
 
                 dispatch({

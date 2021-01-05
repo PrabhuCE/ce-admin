@@ -196,9 +196,10 @@ function BlogConfig(props) {
 
     const handleEditAppName = () => {
         let payload = {
-            app_id: selectedApp.id
+            app_id: selectedApp.id,
+            app_name: appName
         };
-        props.editAppInfo(payload, props.appsList);
+        props.editAppInfo(payload, props.archivedAppsList);
     }
 
     const handleArchiveApp = (app) => {

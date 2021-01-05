@@ -4,6 +4,7 @@ const initState = {
     categoryList: [],
     activeCatList: [],
     archivedCatList: [],
+    archivedCatListForApp: [],
     newApp: {},
     newCategory: {},
     thumbImg: '',
@@ -11,9 +12,11 @@ const initState = {
     newBlog: {},
     activeBlogList: [],
     archivedBlogList: [],
+    isBlogUpdated: false,
     appsAPIStatus: false,
     categoryAPIStatus: false,
-    postCategoryAPIStatus: false
+    postCategoryAPIStatus: false,
+    isSlugUnique: null
 }
 
 
@@ -26,6 +29,7 @@ export const listData = (state = initState, action) => {
                 appsAPIStatus: true,
                 categoryAPIStatus: false,
                 postCategoryAPIStatus: false,
+                archivedCatListForApp: []
 
             }
         case 'FETCH_CATEGORY_LIST':
@@ -35,6 +39,7 @@ export const listData = (state = initState, action) => {
                 appsAPIStatus: false,
                 categoryAPIStatus: true,
                 postCategoryAPIStatus: false,
+                archivedCatListForApp: []
             }
         case 'FETCH_ARCHIVED_APPS_LIST':
             return {
@@ -49,7 +54,7 @@ export const listData = (state = initState, action) => {
         case 'EDIT_APP_INFO':
             return {
                 ...state,
-                appsList: action.payload,
+                archivedAppsList: action.payload,
             }
         case 'ARCHIVE_APP':
             return {
@@ -84,8 +89,15 @@ export const listData = (state = initState, action) => {
                 ...state,
                 activeCatList: action.payload.activeCatList,
                 archivedCatList: action.payload.archivedCatList,
+                archivedCatListForApp: action.payload.archCatListForApp
             }
         case 'FETCH_ARCHIVED_CAT_LIST':
+            return {
+                ...state,
+                //archivedCatList: action.payload.archivedCat,
+                archivedCatListForApp: action.payload.archivedResults
+            }
+        case 'FETCH_ALL_ARCHIVED_CAT_LIST':
             return {
                 ...state,
                 archivedCatList: action.payload,
@@ -115,7 +127,9 @@ export const listData = (state = initState, action) => {
                 ...state,
                 newBlog: {},
                 thumbImg: '',
-                authorImg: ''
+                authorImg: '',
+                isBlogUpdated: false,
+                isSlugUnique: null
             }
         case 'ACTIVE_BLOG_LIST':
             return {
@@ -142,7 +156,13 @@ export const listData = (state = initState, action) => {
         case 'UPDATE_BLOG':
             return {
                 ...state,
-                archivedBlogList: action.payload
+                archivedBlogList: action.payload,
+                isBlogUpdated: true
+            }
+        case 'VALIDATE_SLUG':
+            return {
+                ...state,
+                isSlugUnique: action.payload.is_unique
             }
         case 'RESET_CREATE_CATEGORY':
             return {

@@ -25,7 +25,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import CatDetails from './catDetails';
 import Header from '../Header';
-import { editCatInfo, postCategoryData, archiveCat, unArchiveCat, getArchivedCategory, getActiveCategory } from '../../Store/Blog/actionCreator'
+import { editCatInfo, postCategoryData, archiveCat, unArchiveCat, getArchivedCategory, getActiveCategory, getAllArchivedCategory } from '../../Store/Blog/actionCreator'
 import { SettingsApplications } from '@material-ui/icons';
 
 
@@ -123,15 +123,17 @@ function BlogConfig(props) {
         if (e.target.value == 1) {
             props.getActiveCategory(catSelApp)
         } else if (e.target.value == 2) {
-            props.getArchivedCategory(catSelApp)
+            props.getArchivedCategory(catSelApp, props.archivedCatList)
         }
     }
 
+    useEffect(() => { props.getAllArchivedCategory() }, [])
+
     useEffect(() => {
         if (filterCat == 2) {
-            setCategoryList(props.archivedCatList)
+            setCategoryList(props.archivedCatListForApp)
         }
-    }, [props.archivedCatList])
+    }, [props.archivedCatListForApp])
 
     useEffect(() => {
         if (props.appsList.length > 0) {
@@ -322,7 +324,8 @@ const mapDispatchToProps = (dispatch) => ({
     archiveCat: bindActionCreators(archiveCat, dispatch),
     unArchiveCat: bindActionCreators(unArchiveCat, dispatch),
     getArchivedCategory: bindActionCreators(getArchivedCategory, dispatch),
-    getActiveCategory: bindActionCreators(getActiveCategory, dispatch)
+    getActiveCategory: bindActionCreators(getActiveCategory, dispatch),
+    getAllArchivedCategory: bindActionCreators(getAllArchivedCategory, dispatch)
 })
 
 const mapStateToProps = (state) => {
@@ -331,7 +334,8 @@ const mapStateToProps = (state) => {
         list,
         appsList: list.appsList,
         activeCatList: list.activeCatList,
-        archivedCatList: list.archivedCatList
+        archivedCatList: list.archivedCatList,
+        archivedCatListForApp: list.archivedCatListForApp
     }
 }
 

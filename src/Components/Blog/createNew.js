@@ -23,10 +23,13 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import CreateEditor from '../../Components/Shared/CreateBlogEditor';
+import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
+import HighlightOffOutlinedIcon from '@material-ui/icons/HighlightOffOutlined';
+
 //import TextEditorClassic from '../Shared/TextEditorClassic';
 import TextEditor from '../Shared/TextEditor';
 import Header from '../../Components/Header';
-import { getBlogContent, uploadThumbImg, uploadAuthorImg, createBlog, updateBlog, clearNewBlogObj } from '../../Store/Blog/actionCreator';
+import { getBlogContent, validateURLSlug, uploadThumbImg, uploadAuthorImg, createBlog, updateBlog, clearNewBlogObj } from '../../Store/Blog/actionCreator';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { redirectTo } from '../../Helpers/basics'
@@ -106,6 +109,12 @@ const useStyles = makeStyles((theme) => ({
     brdCrmbSecondary: {
         color: '#2e8eec',
     },
+    validIcon: {
+        color: 'green'
+    },
+    invalidIcon: {
+        color: 'red'
+    }
 }))
 
 
@@ -150,6 +159,8 @@ function CreateBlog(props) {
     const [editThumbURL, setEditThumbURL] = useState();
     const [editAuthImgURL, setEditAuthImgURL] = useState();
     const [openDialog, setOpenDialog] = useState(false);
+    const [URLSlugCheck, setURLSlugCheck] = useState(false);
+    const [enableSlugCheckBtn, setEnableSlugCheckBtn] = useState(true);
 
 
 
@@ -198,9 +209,24 @@ function CreateBlog(props) {
         }
     }, [])
 
+
+
     useEffect(() => {
+        console.log("prps.isBlogUpdated", props.isBlogUpdated, "type:", typeof props.isBlogUpdated)
         if (Object.keys(props.newBlog).length > 0) {
             setBlogSuccess(true);
+        } else {
+            setBlogSuccess(false)
+        }
+
+        if (props.isBlogUpdated) {
+            setBlogSuccess(true);
+        } else {
+            setBlogSuccess(false)
+        }
+        if (props.isSlugUnique !== null) {
+            setURLSlugCheck(props.isSlugUnique)
+            setEnableSlugCheckBtn(false)
         }
     }, [props.list])
 
@@ -246,6 +272,7 @@ function CreateBlog(props) {
 
 
     const handleUrlSlugChange = (event) => {
+        setEnableSlugCheckBtn(true);
         setUrlSlug(event.target.value)
     }
 
@@ -354,6 +381,13 @@ function CreateBlog(props) {
         setBlogContent(data);
     }
 
+    const validateSlug = () => {
+        let payload = {
+            url_slug: urlSlug
+        }
+        props.validateURLSlug(payload)
+    }
+
     const createBlog = () => {
         let payload = {};
         payload["category"] = category;
@@ -423,8 +457,6 @@ function CreateBlog(props) {
         }
     }
 
-
-
     const SimpleBreadcrumbs = () => {
         const classes = useStyles();
         return (
@@ -460,7 +492,7 @@ function CreateBlog(props) {
                         <Paper elevation={2}>
                             <Grid container spacing={1} className={classes.detailsWrapper}>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <FormControl variant="outlined" className={classes.formControl}>
+                                    <FormControl variant="outlined" className={classes.formControl} disabled={isEdit}>
                                         <InputLabel id="demo-simple-select-outlined-label">Apps</InputLabel>
                                         <Select
                                             labelId="demo-simple-select-outlined-label"
@@ -476,7 +508,7 @@ function CreateBlog(props) {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <FormControl variant="outlined" className={classes.formControl}>
+                                    <FormControl variant="outlined" className={classes.formControl} disabled={isEdit}>
                                         <InputLabel id="demo-simple-select-outlined-label">Category</InputLabel>
                                         <Select
                                             labelId="demo-simple-select-outlined-label"
@@ -521,8 +553,27 @@ function CreateBlog(props) {
                                     </Grid>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <TextField className={classes.title} onChange={handleUrlSlugChange} value={urlSlug} variant='outlined' label="URL Slug">
-                                    </TextField>
+                                    <Grid container spacing={2}>
+                                        <Grid item xs={12} sm={6} md={9} lg={9}>
+                                            <TextField className={classes.title} onChange={handleUrlSlugChange} value={urlSlug} variant='outlined' label=" Unique URL Slug">
+                                            </TextField>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={3} lg={3}>
+                                            {enableSlugCheckBtn && <Button
+                                                variant="contained"
+                                                color="default"
+                                                className={classes.uploadBtn}
+                                                onClick={() => {
+                                                    validateSlug();
+                                                }}
+                                            >
+                                                Validate
+                                        </Button>}
+                                            {!enableSlugCheckBtn && <React.Fragment>
+                                                {URLSlugCheck == true ? <div style={{ display: 'flex', margin: '0.5rem' }}> <CheckCircleOutlineOutlinedIcon className={classes.validIcon} /> <div>Valid</div> </div> : <div style={{ display: 'flex', margin: '0.5rem' }}><HighlightOffOutlinedIcon className={classes.invalidIcon} /><div>In-Valid</div></div>}
+                                            </React.Fragment>}
+                                        </Grid>
+                                    </Grid>
                                 </Grid>
 
                                 <Grid item xs={12} sm={6} md={2} lg={2}>
@@ -628,17 +679,17 @@ function CreateBlog(props) {
                             </Grid>
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    {!isEdit ? <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { createBlog() }}>
+                                    {!isEdit ? <Button variant="contained" color="primary" disabled={blogSuccess} className={classes.uploadBtn} onClick={() => { createBlog() }}>
                                         Submit
-                                    </Button> : <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { updateBlog() }}>
+                                    </Button> : <Button variant="contained" color="primary" disabled={blogSuccess} className={classes.uploadBtn} onClick={() => { updateBlog() }}>
                                             Update
                                     </Button>}
                                 </Grid>
                             </Grid>
-                            {blogSuccess && !isEdit && <Grid container spacing={2}>
+                            {blogSuccess && isEdit && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
-                                    <div style={{ display: 'flex' }}>
-                                        <div>Blog Created Successfully</div>
+                                    <div style={{ display: 'flex', justifyContent: 'center' }}>
+                                        <div style={{ margin: '1rem' }}>Transaction Successful</div>
                                         <Button variant="contained" color="primary" className={classes.uploadBtn} onClick={() => { redirectTo('/blog') }}>
                                             View List
                                     </Button>
@@ -664,7 +715,8 @@ const mapDispatchToProps = (dispatch) => ({
     uploadAuthorImg: bindActionCreators(uploadAuthorImg, dispatch),
     createBlog: bindActionCreators(createBlog, dispatch),
     updateBlog: bindActionCreators(updateBlog, dispatch),
-    clearNewBlogObj: bindActionCreators(clearNewBlogObj, dispatch)
+    clearNewBlogObj: bindActionCreators(clearNewBlogObj, dispatch),
+    validateURLSlug: bindActionCreators(validateURLSlug, dispatch)
 })
 
 const mapStateToProps = (state) => {
@@ -676,7 +728,9 @@ const mapStateToProps = (state) => {
         thumbImg: list.thumbImg,
         authorImg: list.authorImg,
         newBlog: list.newBlog,
-        archivedBlogList: list.archivedBlogList
+        archivedBlogList: list.archivedBlogList,
+        isBlogUpdated: list.isBlogUpdated,
+        isSlugUnique: list.isSlugUnique
     };
 }
 
