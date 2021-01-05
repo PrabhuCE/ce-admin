@@ -57,6 +57,7 @@ const useStyles = makeStyles((theme) => ({
     catName: {
         color: '#82827f',
         fontSize: "1rem",
+        textAlign: 'initial'
     },
     editIconCtr: {
         fontSize: '0.8rem'
@@ -170,6 +171,9 @@ const useStyles = makeStyles((theme) => ({
         marginTop: '1rem',
         width: '80%'
     },
+    logoutBtn: {
+        margin: '0.5rem'
+    },
     catTitle: {
         width: '80%',
         margin: '1rem'
@@ -281,6 +285,12 @@ function BlogList(props) {
         }
 
     }, [props.list])
+
+    const handleBlogLogout = () => {
+        localStorage.setItem('blog_user', "");
+        localStorage.setItem('blog_token', "");
+        props.history.push('/bloglogin')
+    }
 
     useEffect(() => {
         setCategoryFetch(false);
@@ -412,10 +422,16 @@ function BlogList(props) {
                     <Grid container spacing={2}>
                         <Grid item xs={12} sm={12} md={12} lg={12}>
                             <Paper elevation={2} className={classes.categoryCtr}>
-                                <div className={classes.catName}>
-                                    Category -&nbsp;{selectedCatTitle}
-                                </div>
-
+                                <Grid container spacing={2}>
+                                    <Grid item xs={12} sm={12} md={9} lg={10} style={{ padding: '1px' }}>
+                                        <div className={classes.catName}>
+                                            Category -&nbsp;{selectedCatTitle}
+                                        </div>
+                                    </Grid>
+                                    {/* <Grid item xs={12} sm={12} md={3} lg={2} style={{ padding: '1px' }}>
+                                        <div style={{ justifyContent: 'flex-end' }}> <Button variant="contained" color="primary" className={classes.logoutBtn} onClick={() => { handleBlogLogout() }}>Logout</Button></div>
+                                    </Grid> */}
+                                </Grid>
                             </Paper>
                         </Grid>
                     </Grid>

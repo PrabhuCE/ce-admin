@@ -1,8 +1,20 @@
 import { getProductDomain } from "../Helpers/basics";
 import { getCategoryList } from "../Store/Blog/actionCreator";
+import { getEnv } from '../Helpers/basics';
 
-const base_domain = "https://cmns.api.moocpedia.com/";
 
+const apiDomain = (env) => {
+  switch (env) {
+    case "prod":
+      return "https://api.myathina.com/";
+    case "dev":
+      return "https://cmns.api.moocpedia.com/";
+    default:
+      return "https://cmns.api.moocpedia.com/";
+  }
+};
+
+const base_domain = apiDomain(getEnv());
 const prep_domain = "https://api.prep.continualengine.com/";
 const tv_domain = "https://api.tablevision.ai/";
 const myathina_domain = "https://api.myathina.com/";
@@ -33,10 +45,13 @@ switch (product) {
     product_domain = "";
 }
 
+
 export const apiConfig = {
+
   userAuth: {
     loginUrl: `${base_domain}accounts/auth/`,
     tenantLoginUrl: `${product_domain}user/admin-login/`,
+    blogLoginURL: `${base_domain}user/admin-login/`
   },
   getTables: {
     fetchTablesList: `${product_domain}ceadmin/component/`,

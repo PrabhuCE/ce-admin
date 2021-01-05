@@ -11,20 +11,25 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Link from '@material-ui/core/Link';
 import { NavLink, withRouter } from "react-router-dom";
-//import { connect } from 'react-redux';
 import { apiConfig } from '../../Configs/apiConfigs';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import CELogo from '../../Static/ce.png';
-// import { showSnackBar } from '../../store/AlertMessages/actionCreator';
-import { login } from '../../Store/Login/actionCreator';
-import { generateJwtToken } from '../../Helpers/basics';
+import { bloglogin } from '../../Store/Login/actionCreator';
+import { generateJwtToken, getBlogLoggedInStatus } from '../../Helpers/basics';
 
 
 export default function Login(props) {
     const [displayProgress, setDisplayProgress] = useState(false);
     const [btnDisabled, setBtnDisabled] = useState(false);
     const [renderLogin, setRenderLogin] = useState(true);
+    const [errorMsg, setErrorMsg] = useState('');
     const classes = useStyles();
+
+    useEffect(() => {
+        if (getBlogLoggedInStatus()) {
+            props.history.push('/blog')
+        }
+    }, [])
 
 
     const validateEmail = email => {
@@ -36,48 +41,54 @@ export default function Login(props) {
         event.preventDefault();
         setDisplayProgress(true);
         setBtnDisabled(true);
-        // const userName = document.getElementById('username').value;
-        // const password = document.getElementById('password').value;
-        // let isValid;
-        // if (userName !== '' && password !== '') {
-        //     isValid = validateEmail(userName);
-        //     if (isValid) {
-        //         let loginCredentials = {}
-        //         loginCredentials.username = userName;
-        //         loginCredentials.password = password;
-        //         login(loginCredentials, successCallBack, failureCallBack)
-        //     } else {
-        //         //props.showSnackBar(
-        //         //     {
-        //         //         state: true,
-        //         //         message: 'Username Not Valid!',
-        //         //         type: 'error'
-        //         //     }
-        //         // )
-        //         setDisplayProgress(false);
-        //         setBtnDisabled(false);
-        //     }
-        // } else {
-        //     // props.showSnackBar(
-        //     //     {
-        //     //         state: true,
-        //     //         message: 'Credentials cannot be Empty!',
-        //     //         type: 'error'
-        //     //     }
-        //     // )
-        //     setDisplayProgress(false);
-        //     setBtnDisabled(false);
-        // }
-        props.history.replace('/blog');
+        const userName = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        let isValid;
+        if (userName !== '' && password !== '') {
+            isValid = validateEmail(userName);
+            if (isValid) {
+                let loginCredentials = {}
+                loginCredentials.username = userName;
+                loginCredentials.password = password;
+                bloglogin(loginCredentials, successCallBack, failureCallBack)
+            } else {
+                //props.showSnackBar(
+                //     {
+                //         state: true,
+                //         message: 'Username Not Valid!',
+                //         type: 'error'
+                //     }
+                // )
+                setErrorMsg('Username Not Valid');
+                setDisplayProgress(false);
+                setBtnDisabled(false);
+            }
+        } else {
+            // props.showSnackBar(
+            //     {
+            //         state: true,
+            //         message: 'Credentials cannot be Empty!',
+            //         type: 'error'
+            //     }
+            // )
+            setErrorMsg('Credentials cannot be Empty!');
+            setDisplayProgress(false);
+            setBtnDisabled(false);
+        }
     }
 
     const successCallBack = (res) => {
-        var userToken = generateJwtToken(res.user)
+        console.log("test res", res)
+        var userToken = generateJwtToken(res.userDetails)
+        console.log("user", userToken)
+        localStorage.setItem('blog_user', userToken);
+        localStorage.setItem('blog_token', res.token);
         setDisplayProgress(false);
-        props.history.replace('/apps');
+        props.history.push('/blog');
     }
 
     const failureCallBack = () => {
+        setErrorMsg('Something went wrong.Try again later')
         setDisplayProgress(false);
         setBtnDisabled(false);
     }
@@ -115,6 +126,7 @@ export default function Login(props) {
                         >
                             Login  {displayProgress && <CircularProgress className={classes.progressIcon} size={20} />}
                         </Button>
+                        {errorMsg !== '' && <div style={{ justifyContent: 'center', marginTop: '0.5rem', color: 'red' }}>{errorMsg}</div>}
                     </form>
                 </CardContent>
             </Card>}

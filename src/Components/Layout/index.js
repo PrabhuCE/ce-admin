@@ -20,20 +20,19 @@ function Layout(props) {
       <Switch>
         <Route exact={true} path="/" component={Login} />
         <Route path="/bloglogin" history={props.history} component={BlogLogin} />
-        <Route path="/createblog" history={props.history} component={BlogCreate} />
-        <Route path="/blogconfig" history={props.history} component={BlogConfig} />
-        <Route path="/apps" history={props.history} component={AppList} />
         <PrivateRoute
           path="/tenantlogin"
           history={props.history}
           component={TenantLogin}
         />
-        <Route path="/blog" history={props.history} component={Blog} />
-        {/* <BlogPrivateRoute
+        <BlogPrivateRoute
           path="/blog"
           history={props.history}
           component={Blog}
-        /> */}
+        />
+        <BlogPrivateRoute path="/createblog" history={props.history} component={BlogCreate} />
+        <BlogPrivateRoute path="/blogconfig" history={props.history} component={BlogConfig} />
+        <Route path="/apps" history={props.history} component={AppList} />
         <PrivateRoute
           path="/:tenantId/tables"
           history={props.history}

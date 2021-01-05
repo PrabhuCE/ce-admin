@@ -32,6 +32,17 @@ export const parseIDToken = (idToken) => {
     };
 };
 
+export const getEnv = () => {
+    switch (window.location.origin) {
+        case 'http://localhost:3000':
+            return 'dev';
+        case 'https://ceadmin.netlify.app':
+            return 'prod';
+        default:
+            return 'dev'
+    }
+}
+
 
 export const getLoggedInStatus = () => {
     const token = localStorage.getItem('token');
@@ -107,14 +118,6 @@ export function parseJwt(token) {
     return JSON.parse(jsonPayload);
 }
 
-export const getEnv = () => {
-    switch (window.location.origin) {
-        case "http://localhost:3000":
-            return "dev";
-        default:
-            return "dev";
-    }
-};
 
 export const bytesToSize = (bytes) => {
     var sizes = ["Bytes", "KB", "MB", "GB", "TB"];

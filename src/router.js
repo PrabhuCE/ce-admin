@@ -18,6 +18,6 @@ export const BlogPrivateRoute = ({ component: Component, ...rest }) => (
     <Route {...rest} render={(props) => (
         getBlogLoggedInStatus() === true
             ? <Component {...props} />
-            : <Redirect to='/apps' />
+            : <Redirect to='/bloglogin' />
     )} />
 )
