@@ -125,7 +125,7 @@ function CreateBlog(props) {
     const [apps, setApps] = useState(props.appsList && props.appsList || []);
     const [categories, setCategories] = useState([]);
     const [title, setTitle] = useState('');
-    const [urlSlug, setUrlSlug] = useState();
+    const [urlSlug, setUrlSlug] = useState('');
     const [duration, setDuration] = useState();
     const [shortDesc, setShortDesc] = useState();
     const [thumbnailImg, setThumbnailImg] = useState();
@@ -159,10 +159,11 @@ function CreateBlog(props) {
     const [editThumbURL, setEditThumbURL] = useState();
     const [editAuthImgURL, setEditAuthImgURL] = useState();
     const [openDialog, setOpenDialog] = useState(false);
-    const [URLSlugCheck, setURLSlugCheck] = useState(false);
-    const [enableSlugCheckBtn, setEnableSlugCheckBtn] = useState(true);
-
-
+    const [URLSlugCheck, setURLSlugCheck] = useState(null);
+    const [enableSlugCheckBtn, setEnableSlugCheckBtn] = useState(false);
+    const [slugCheckLoader, setSlugCheckLoader] = useState(false);
+    const [slugValidator, setSlugValidator] = useState(false);
+    const [validationMsg, setValidationMsg] = useState('');
 
     useEffect(() => {
         if (props.categoryList.length > 0) {
@@ -212,13 +213,11 @@ function CreateBlog(props) {
 
 
     useEffect(() => {
-        console.log("prps.isBlogUpdated", props.isBlogUpdated, "type:", typeof props.isBlogUpdated)
         if (Object.keys(props.newBlog).length > 0) {
             setBlogSuccess(true);
         } else {
             setBlogSuccess(false)
         }
-
         if (props.isBlogUpdated) {
             setBlogSuccess(true);
         } else {
@@ -226,9 +225,13 @@ function CreateBlog(props) {
         }
         if (props.isSlugUnique !== null) {
             setURLSlugCheck(props.isSlugUnique)
-            setEnableSlugCheckBtn(false)
+            setSlugCheckLoader(false)
         }
     }, [props.list])
+
+    useEffect(() => {
+        setURLSlugCheck(props.isSlugUnique)
+    }, [props.isSlugUnique])
 
     useEffect(() => {
         if (props.thumbImg !== '') {
@@ -273,7 +276,9 @@ function CreateBlog(props) {
 
     const handleUrlSlugChange = (event) => {
         setEnableSlugCheckBtn(true);
-        setUrlSlug(event.target.value)
+        setSlugValidator(true);
+        let slug = event.target.value.replace(/\s+/g, '-').toLowerCase();
+        setUrlSlug(slug);
     }
 
     const handleDurationChange = (event) => {
@@ -382,10 +387,13 @@ function CreateBlog(props) {
     }
 
     const validateSlug = () => {
+        setValidationMsg('');
         let payload = {
             url_slug: urlSlug
         }
         props.validateURLSlug(payload)
+        setSlugCheckLoader(true)
+        setEnableSlugCheckBtn(false)
     }
 
     const createBlog = () => {
@@ -414,7 +422,12 @@ function CreateBlog(props) {
         if (props.thumbImg) {
             payload["og_image_key"] = props.thumbImg.s3_key;
         }
-        props.createBlog(payload);
+        if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
+            props.createBlog(payload);
+        }
+        else {
+            setValidationMsg('Invalid Slug URL')
+        }
     }
 
     const updateBlog = () => {
@@ -445,7 +458,12 @@ function CreateBlog(props) {
         }
         let urlParams = new URLSearchParams(window.location.search);
         let paramVal = urlParams.get("blog_id");
-        props.updateBlog(paramVal, payload, props.archivedBlogList);
+        if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
+            props.updateBlog(paramVal, payload, props.archivedBlogList);
+        }
+        else {
+            setValidationMsg('Invalid Slug URL');
+        }
     }
 
     const openPreviewDialog = (type) => {
@@ -555,7 +573,7 @@ function CreateBlog(props) {
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <Grid container spacing={2}>
                                         <Grid item xs={12} sm={6} md={9} lg={9}>
-                                            <TextField className={classes.title} onChange={handleUrlSlugChange} value={urlSlug} variant='outlined' label=" Unique URL Slug">
+                                            <TextField className={classes.title} onChange={handleUrlSlugChange} value={urlSlug} variant='outlined' label="Unique URL Slug (Ex:example-slug-url)">
                                             </TextField>
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3} lg={3}>
@@ -569,8 +587,8 @@ function CreateBlog(props) {
                                             >
                                                 Validate
                                         </Button>}
-                                            {!enableSlugCheckBtn && <React.Fragment>
-                                                {URLSlugCheck == true ? <div style={{ display: 'flex', margin: '0.5rem' }}> <CheckCircleOutlineOutlinedIcon className={classes.validIcon} /> <div>Valid</div> </div> : <div style={{ display: 'flex', margin: '0.5rem' }}><HighlightOffOutlinedIcon className={classes.invalidIcon} /><div>In-Valid</div></div>}
+                                            {!enableSlugCheckBtn && URLSlugCheck !== null && !slugCheckLoader && <React.Fragment>
+                                                {URLSlugCheck == true ? <div style={{ display: 'flex', margin: '0.5rem' }}> <CheckCircleOutlineOutlinedIcon className={classes.validIcon} /> <div style={{ margin: '0.2rem' }}>Valid</div> </div> : <div style={{ display: 'flex', margin: '0.5rem' }}><HighlightOffOutlinedIcon className={classes.invalidIcon} /><div style={{ margin: '0.2rem' }}>In-Valid</div></div>}
                                             </React.Fragment>}
                                         </Grid>
                                     </Grid>
@@ -677,6 +695,9 @@ function CreateBlog(props) {
                                     </TextField>
                                 </Grid>
                             </Grid>
+                            {
+                                validationMsg != '' && <div style={{ justifyContent: 'center', color: 'red', fontSize: '1rem', margin: '0.5rem' }}>{validationMsg}</div>
+                            }
                             <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     {!isEdit ? <Button variant="contained" color="primary" disabled={blogSuccess} className={classes.uploadBtn} onClick={() => { createBlog() }}>
@@ -686,6 +707,7 @@ function CreateBlog(props) {
                                     </Button>}
                                 </Grid>
                             </Grid>
+
                             {blogSuccess && isEdit && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>

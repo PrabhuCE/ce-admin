@@ -36,6 +36,7 @@ function TextEditor(props) {
     }, [props]);
 
     const onChangeData = (data) => {
+        console.log("data===", data)
         setDefaultData(data);
     };
 
