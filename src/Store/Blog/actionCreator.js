@@ -447,7 +447,9 @@ export const archiveCat = (payload, activeCatList, archivedCatList) => {
 }
 
 export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
+    console.log("activeCatList", activeCatList);
     console.log("archivedCatList", archivedCatList);
+
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
     let header = {
         headers: {
@@ -460,10 +462,9 @@ export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
                 return response.data
             })
             .then(data => {
-
+                let activeCat = archivedCatList.find(item => item.id == payload.cat_id);
                 let newList = archivedCatList.filter(item => item.id !== payload.cat_id);
                 let archiveListOfApp = newList.filter(item => item.id == payload.cat_id);
-                let activeCat = archivedCatList.find(item => item.id === payload.cat_id);
                 activeCat.is_active = true;
                 activeCatList.push(activeCat);
 
@@ -473,7 +474,7 @@ export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
                     archivedCatList: newList,
                     archCatListForApp: archiveListOfApp
                 }
-
+                console.log("test-====", appsObj)
                 dispatch({
                     type: "UN_ARCHIVE_CAT",
                     payload: appsObj

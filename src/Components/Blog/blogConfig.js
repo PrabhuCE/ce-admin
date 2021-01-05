@@ -316,7 +316,7 @@ function BlogConfig(props) {
                                                     </TableRow>
                                                 </TableHead>
                                                 <TableBody>
-                                                    {appList.length > 0 && appList.map((row, index) => (
+                                                    {appList.length > 0 ? appList.map((row, index) => (
                                                         <TableRow key={index}>
                                                             <TableCell align="center" component="th" scope="row">
                                                                 {index + 1}
@@ -335,7 +335,7 @@ function BlogConfig(props) {
                                                                 {!row.is_active && <Tooltip title="Edit App Name"><EditIcon className={classes.icn} onClick={() => { handleEditApp(row) }} /></Tooltip>}
                                                             </TableCell>
                                                         </TableRow>
-                                                    ))}
+                                                    )) : <div style={{ margin: '0.5rem' }}>No Records to Display</div>}
                                                 </TableBody>
                                             </Table>
                                         </TableContainer>

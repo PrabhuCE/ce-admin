@@ -257,8 +257,6 @@ function BlogList(props) {
     }, [props.appsList])
 
     useEffect(() => {
-
-
     }, [props.activeBlogList, props.archivedBlogList])
 
     const archiveBlog = (blog) => {
@@ -286,11 +284,11 @@ function BlogList(props) {
 
     }, [props.list])
 
-    const handleBlogLogout = () => {
-        localStorage.setItem('blog_user', "");
-        localStorage.setItem('blog_token', "");
-        props.history.push('/bloglogin')
-    }
+    // const handleBlogLogout = () => {
+    //     localStorage.setItem('blog_user', "");
+    //     localStorage.setItem('blog_token', "");
+    //     props.history.push('/bloglogin')
+    // }
 
     useEffect(() => {
         setCategoryFetch(false);
@@ -428,9 +426,6 @@ function BlogList(props) {
                                             Category -&nbsp;{selectedCatTitle}
                                         </div>
                                     </Grid>
-                                    {/* <Grid item xs={12} sm={12} md={3} lg={2} style={{ padding: '1px' }}>
-                                        <div style={{ justifyContent: 'flex-end' }}> <Button variant="contained" color="primary" className={classes.logoutBtn} onClick={() => { handleBlogLogout() }}>Logout</Button></div>
-                                    </Grid> */}
                                 </Grid>
                             </Paper>
                         </Grid>
@@ -445,23 +440,23 @@ function BlogList(props) {
 
                         <TabPanel value={value} index={0} style={{ width: '100%' }}>
                             <Grid container spacing={2}>
-                                {blogList.length > 0 && blogList.map((item, index) => {
+                                {blogList.length > 0 ? blogList.map((item, index) => {
                                     return (
                                         <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
                                             {renderBlogCard(item)}
                                         </Grid>)
-                                })}
+                                }) : <div>No Data to Display</div>}
 
                             </Grid>
                         </TabPanel>
                         <TabPanel value={value} index={1} style={{ width: '100%' }}>
                             <Grid container spacing={2}>
-                                {archBlogList.length > 0 && archBlogList.map((item, index) => {
+                                {archBlogList.length > 0 ? archBlogList.map((item, index) => {
                                     return (
                                         <Grid key={index} item xs={12} sm={12} md={3} lg={3}>
                                             {renderBlogCard(item)}
                                         </Grid>)
-                                })}
+                                }) : <div>No Data to Display</div>}
                             </Grid>
                         </TabPanel>
                     </Paper>
