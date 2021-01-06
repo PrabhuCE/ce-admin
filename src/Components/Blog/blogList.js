@@ -284,11 +284,6 @@ function BlogList(props) {
 
     }, [props.list])
 
-    // const handleBlogLogout = () => {
-    //     localStorage.setItem('blog_user', "");
-    //     localStorage.setItem('blog_token', "");
-    //     props.history.push('/bloglogin')
-    // }
 
     useEffect(() => {
         setCategoryFetch(false);
@@ -341,7 +336,7 @@ function BlogList(props) {
                         <div className={classes.infoCtr}>
                             <Grid container spacing={1}>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
-                                    <div className={classes.itemDate}> {moment(item.modified_date).format('DD-MMM-YYYY')} </div>
+                                    <div className={classes.itemDate}> {moment(item.created_date).format('DD-MMM-YYYY')} </div>
                                 </Grid>
                                 <Grid item xs={12} sm={6} md={6} lg={6}>
                                     <div className={classes.itemDate}>  {item.duration} Min </div>

@@ -12,6 +12,7 @@ import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import { makeStyles } from '@material-ui/core/styles';
 import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
+import moment from 'moment';
 import FormHelperText from '@material-ui/core/FormHelperText';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
@@ -164,6 +165,7 @@ function CreateBlog(props) {
     const [slugCheckLoader, setSlugCheckLoader] = useState(false);
     const [slugValidator, setSlugValidator] = useState(false);
     const [validationMsg, setValidationMsg] = useState('');
+    const [publishDate, setPublishDate] = useState(moment(new Date).format('YYYY-MM-DD'));
 
     useEffect(() => {
         if (props.categoryList.length > 0) {
@@ -171,6 +173,10 @@ function CreateBlog(props) {
             setCategories(categoryArr);
         }
     }, [props.categoryList])
+
+    const handleDateChange = (event) => {
+        setPublishDate(event.target.value)
+    }
 
     useEffect(() => {
         props.clearNewBlogObj();
@@ -192,11 +198,12 @@ function CreateBlog(props) {
                 setKeywords(keywordArr);
                 setKeywordTxt(keywordArr.toString());
                 setBlogContent(editBlog.content);
+                setPublishDate(moment(editBlog.created_date).format('YYYY-MM-DD'));
                 setMetaContent({
                     "meta-title": editBlog.meta_title,
                     "meta-desc": editBlog.meta_description,
-                    "meta_keyword": editBlog.meta_keyword,
-                    "meta_author": editBlog.meta_author,
+                    "meta-keyword": editBlog.meta_keyword,
+                    "meta-author": editBlog.meta_author,
                 });
                 setOGContent({
                     "og-title": editBlog.og_title,
@@ -411,6 +418,7 @@ function CreateBlog(props) {
         }
         payload["keywords"] = keywords;
         payload["content"] = blogContent;
+        payload["created_date"] = moment(publishDate).format();
         payload["meta_title"] = metaContent["meta-title"];
         payload["meta_description"] = metaContent["meta-desc"];
         payload["meta_keyword"] = metaContent["meta-keyword"];
@@ -418,7 +426,7 @@ function CreateBlog(props) {
         payload["og_title"] = OGContent["og-title"];
         payload["og_url"] = OGContent["og-url"];
         payload["og_keyword"] = OGContent["og-keywords"];
-        payload["og_desc"] = OGContent["og-desc"];
+        payload["og_description"] = OGContent["og-desc"];
         if (props.thumbImg) {
             payload["og_image_key"] = props.thumbImg.s3_key;
         }
@@ -444,6 +452,7 @@ function CreateBlog(props) {
             payload["author_image_key"] = props.authorImg.s3_key;
         }
         payload["keywords"] = keywords;
+        payload["created_date"] = moment(publishDate).format();
         payload["content"] = blogContent;
         payload["meta_title"] = metaContent["meta-title"];
         payload["meta_description"] = metaContent["meta-desc"];
@@ -452,7 +461,7 @@ function CreateBlog(props) {
         payload["og_title"] = OGContent["og-title"];
         payload["og_url"] = OGContent["og-url"];
         payload["og_keyword"] = OGContent["og-keywords"];
-        payload["og_desc"] = OGContent["og-desc"];
+        payload["og_description"] = OGContent["og-desc"];
         if (props.thumbImg) {
             payload["og_image_key"] = props.thumbImg.s3_key;
         }
@@ -627,12 +636,12 @@ function CreateBlog(props) {
 
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <Grid container spacing={2}>
-                                        <Grid item xs={12} sm={9} md={9} lg={9}>
+                                        <Grid item xs={12} sm={6} md={6} lg={6}>
                                             <TextField className={classes.title} variant='outlined' value={keywordTxt} onChange={handleKeywordTxtChange} label="Keywords" >
 
                                             </TextField>
                                         </Grid>
-                                        <Grid item xs={12} sm={9} md={9} lg={3}>
+                                        <Grid item xs={12} sm={6} md={2} lg={2}>
                                             <Button
                                                 variant="contained"
                                                 color="primary"
@@ -640,7 +649,20 @@ function CreateBlog(props) {
                                                 className={classes.addBtn}
                                             >
                                                 Add
-                                     </Button>
+                                            </Button>
+                                        </Grid>
+                                        <Grid item xs={12} sm={6} md={4} lg={4}>
+                                            <TextField
+                                                id="date"
+                                                label="Publish Date"
+                                                type="date"
+                                                onChange={handleDateChange}
+                                                value={publishDate}
+                                                className={classes.textField}
+                                                InputLabelProps={{
+                                                    shrink: true,
+                                                }}
+                                            />
                                         </Grid>
                                     </Grid>
                                     <Grid item xs={12} sm={12} md={12} lg={12}>
