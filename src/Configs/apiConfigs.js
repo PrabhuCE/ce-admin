@@ -6,8 +6,8 @@ import { getEnv } from '../Helpers/basics';
 const apiDomain = (env) => {
   switch (env) {
     case "prod":
-      //return "https://api.myathina.com/";
-      return "https://cmns.api.moocpedia.com/";
+      return "https://api.myathina.com/";
+    //return "https://cmns.api.moocpedia.com/";
     case "dev":
       return "https://cmns.api.moocpedia.com/";
     default:
