@@ -24,9 +24,10 @@ const apps = {
 
 export const getAppsList = () => {
     let url = apiConfig.apps.getAppsList;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -49,9 +50,10 @@ export const getAppsList = () => {
 
 export const getArchivedAppsList = () => {
     let url = apiConfig.apps.getAppsList + `?archive=true`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -174,9 +176,10 @@ export const resetCreateCategory = () => {
 
 export const getCategoryList = (payload) => {
     let url = apiConfig.blog.getCategoryList;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -198,9 +201,10 @@ export const getCategoryList = (payload) => {
 
 export const getCategoryListForApp = (payload) => {
     let url = apiConfig.blog.getCategoryList + `?application_id=${payload}`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -224,9 +228,10 @@ export const getCategoryListForApp = (payload) => {
 export const createApp = (payload, existingList) => {
 
     let url = apiConfig.apps.createApps;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -252,9 +257,10 @@ export const createApp = (payload, existingList) => {
 export const editAppInfo = (payload, existingList) => {
 
     let url = apiConfig.apps.editAppInfo + `${payload.app_id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     let editPayload = {
@@ -283,9 +289,10 @@ export const editAppInfo = (payload, existingList) => {
 export const archiveApp = (payload, archivedList, existingList) => {
 
     let url = apiConfig.apps.archiveApp + `${payload.app_id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
@@ -321,9 +328,10 @@ export const archiveApp = (payload, archivedList, existingList) => {
 export const unArchiveApp = (payload, archivedAppsList, appsList) => {
 
     let url = apiConfig.apps.unArchiveApp + `${payload.app_id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
@@ -356,9 +364,10 @@ export const unArchiveApp = (payload, archivedAppsList, appsList) => {
 export const postCategoryData = (payload, existingCatList) => {
 
     let url = apiConfig.blog.createCategory;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -386,9 +395,10 @@ export const postCategoryData = (payload, existingCatList) => {
 
 export const editCatInfo = (payload, existingCatList) => {
     let url = apiConfig.categories.catURL + `${payload.category.id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     let editPayload = {
@@ -415,9 +425,10 @@ export const editCatInfo = (payload, existingCatList) => {
 
 export const archiveCat = (payload, activeCatList, archivedCatList) => {
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -447,17 +458,17 @@ export const archiveCat = (payload, activeCatList, archivedCatList) => {
 }
 
 export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
-    console.log("activeCatList", activeCatList);
-    console.log("archivedCatList", archivedCatList);
 
     let url = apiConfig.categories.catURL + `${payload.cat_id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
+    let postPayload = {};
     return (dispatch) => {
-        return axios.post(url, payload, header)
+        return axios.post(url, postPayload, header)
             .then(response => {
                 return response.data
             })
@@ -488,9 +499,10 @@ export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
 
 export const getActiveCategory = (payload) => {
     let url = apiConfig.categories.catURL + `?application_id=${payload}`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -511,9 +523,10 @@ export const getActiveCategory = (payload) => {
 
 export const getAllArchivedCategory = () => {
     let url = apiConfig.categories.catURL + `?archive=true`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -536,9 +549,10 @@ export const getAllArchivedCategory = () => {
 
 export const getArchivedCategory = (payload, archivedList) => {
     let url = apiConfig.categories.catURL + `?archive=true&application_id=${payload}`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -564,10 +578,10 @@ export const getArchivedCategory = (payload, archivedList) => {
 
 export const uploadThumbImg = (payload) => {
     let url = apiConfig.blog.contImg;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            "Content-Type": "multipart/form-data",
-            "Authorization": "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
@@ -593,10 +607,10 @@ export const uploadThumbImg = (payload) => {
 
 export const uploadAuthorImg = (payload) => {
     let url = apiConfig.blog.contImg;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            "Content-Type": "multipart/form-data",
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     const data = new FormData()
@@ -622,9 +636,10 @@ export const uploadAuthorImg = (payload) => {
 
 export const validateURLSlug = (payload) => {
     let url = apiConfig.blog.validateSlug;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
@@ -649,9 +664,10 @@ export const validateURLSlug = (payload) => {
 
 export const createBlog = (payload) => {
     let url = apiConfig.blog.createBlog;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
@@ -768,9 +784,10 @@ export const getBlogListData = (payload, successCB, failureCB) => {
 export const getActiveBlogsForCategory = (category) => {
 
     let url = apiConfig.blog.blogListing + `?category_id=${category}`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -795,9 +812,10 @@ export const getActiveBlogsForCategory = (category) => {
 export const getArchivedBlogsForCategory = (category) => {
 
     let url = apiConfig.blog.blogListing + `?archive=true&category_id=${category}`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -822,9 +840,10 @@ export const getArchivedBlogsForCategory = (category) => {
 export const archiveBlog = (payload, existingList, archBlogList) => {
 
     let url = apiConfig.blog.blogListing + `${payload}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     return (dispatch) => {
@@ -858,9 +877,10 @@ export const archiveBlog = (payload, existingList, archBlogList) => {
 export const unArchiveBlog = (payload, existingList, archBlogList) => {
 
     let url = apiConfig.blog.blogListing + `${payload}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
     let inp = {}
@@ -893,9 +913,10 @@ export const unArchiveBlog = (payload, existingList, archBlogList) => {
 
 export const updateBlog = (id, payload, existingList) => {
     let url = apiConfig.blog.createBlog + `${id}/`;
+    let token = localStorage.getItem("blog_token");
     let header = {
         headers: {
-            Authorization: "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+            Authorization: `Token ${token}`,
         },
     };
 
