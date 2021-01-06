@@ -485,7 +485,7 @@ export const unArchiveCat = (payload, activeCatList, archivedCatList) => {
                     archivedCatList: newList,
                     archCatListForApp: archiveListOfApp
                 }
-                console.log("test-====", appsObj)
+
                 dispatch({
                     type: "UN_ARCHIVE_CAT",
                     payload: appsObj
@@ -796,7 +796,7 @@ export const getActiveBlogsForCategory = (category) => {
                 return response.data
             })
             .then(data => {
-                console.log("test", data)
+
                 dispatch({
                     type: "ACTIVE_BLOG_LIST",
                     payload: data.results

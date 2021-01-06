@@ -78,9 +78,7 @@ export default function Login(props) {
     }
 
     const successCallBack = (res) => {
-        console.log("test res", res)
         var userToken = generateJwtToken(res.userDetails)
-        console.log("user", userToken)
         localStorage.setItem('blog_user', userToken);
         localStorage.setItem('blog_token', res.token);
         setDisplayProgress(false);

@@ -4,10 +4,10 @@ import { getEnv } from '../Helpers/basics';
 
 
 const apiDomain = (env) => {
+  // console.log("env", env)
   switch (env) {
     case "prod":
       return "https://api.myathina.com/";
-    //return "https://cmns.api.moocpedia.com/";
     case "dev":
       return "https://cmns.api.moocpedia.com/";
     default:
@@ -16,6 +16,7 @@ const apiDomain = (env) => {
 };
 
 const base_domain = apiDomain(getEnv());
+// console.log("base_domain", base_domain)
 const prep_domain = "https://api.prep.continualengine.com/";
 const tv_domain = "https://api.tablevision.ai/";
 const myathina_domain = "https://api.myathina.com/";
