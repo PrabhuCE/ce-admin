@@ -220,16 +220,12 @@ function CreateBlog(props) {
 
 
     useEffect(() => {
-        if (Object.keys(props.newBlog).length > 0) {
+        if (Object.keys(props.newBlog).length > 0 || props.isBlogUpdated) {
             setBlogSuccess(true);
         } else {
             setBlogSuccess(false)
         }
-        if (props.isBlogUpdated) {
-            setBlogSuccess(true);
-        } else {
-            setBlogSuccess(false)
-        }
+
         if (props.isSlugUnique !== null) {
             setURLSlugCheck(props.isSlugUnique)
             setSlugCheckLoader(false)
@@ -395,12 +391,17 @@ function CreateBlog(props) {
 
     const validateSlug = () => {
         setValidationMsg('');
-        let payload = {
-            url_slug: urlSlug
+        if (category !== '') {
+            let payload = {
+                url_slug: urlSlug,
+                application_id: app
+            }
+            props.validateURLSlug(payload)
+            setSlugCheckLoader(true)
+            setEnableSlugCheckBtn(false)
+        } else {
+            setValidationMsg('Please select a valid App to Validate.');
         }
-        props.validateURLSlug(payload)
-        setSlugCheckLoader(true)
-        setEnableSlugCheckBtn(false)
     }
 
     const createBlog = () => {
@@ -430,11 +431,16 @@ function CreateBlog(props) {
         if (props.thumbImg) {
             payload["og_image_key"] = props.thumbImg.s3_key;
         }
-        if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
-            props.createBlog(payload);
-        }
-        else {
-            setValidationMsg('Invalid Slug URL')
+        if (category !== '') {
+            if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
+
+                props.createBlog(payload);
+            }
+            else {
+                setValidationMsg('Invalid Slug URL')
+            }
+        } else {
+            setValidationMsg('Please select an App & Category')
         }
     }
 
@@ -465,13 +471,19 @@ function CreateBlog(props) {
         if (props.thumbImg) {
             payload["og_image_key"] = props.thumbImg.s3_key;
         }
+
         let urlParams = new URLSearchParams(window.location.search);
         let paramVal = urlParams.get("blog_id");
-        if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
-            props.updateBlog(paramVal, payload, props.archivedBlogList);
+        if (category !== '') {
+            if (urlSlug !== '' && (!slugValidator && URLSlugCheck == null) || (slugValidator && URLSlugCheck == true)) {
+                props.updateBlog(paramVal, payload, props.archivedBlogList);
+            }
+            else {
+                setValidationMsg('Invalid Slug URL');
+            }
         }
         else {
-            setValidationMsg('Invalid Slug URL');
+            setValidationMsg('Please select an App & Category')
         }
     }
 
@@ -586,7 +598,7 @@ function CreateBlog(props) {
                                             </TextField>
                                         </Grid>
                                         <Grid item xs={12} sm={6} md={3} lg={3}>
-                                            {enableSlugCheckBtn && <Button
+                                            {enableSlugCheckBtn && app !== 0 && <Button
                                                 variant="contained"
                                                 color="default"
                                                 className={classes.uploadBtn}
@@ -730,7 +742,7 @@ function CreateBlog(props) {
                                 </Grid>
                             </Grid>
 
-                            {blogSuccess && isEdit && <Grid container spacing={2}>
+                            {blogSuccess && <Grid container spacing={2}>
                                 <Grid item xs={12} sm={12} md={12} lg={12}>
                                     <div style={{ display: 'flex', justifyContent: 'center' }}>
                                         <div style={{ margin: '1rem' }}>Transaction Successful</div>
