@@ -8,6 +8,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import CloudDownloadIcon from "@material-ui/icons/CloudDownload";
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 import LinkIcon from '@material-ui/icons/Link';
 import CircularProgress from "@material-ui/core/CircularProgress";
 import OutlinedInput from "@material-ui/core/OutlinedInput";
@@ -42,9 +43,11 @@ import TablePagination from "@material-ui/core/TablePagination";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Header from "../Header";
+import CheckCircleOutlineOutlinedIcon from '@material-ui/icons/CheckCircleOutlineOutlined';
+import HighlightOffOutlinedIcon from '@material-ui/icons/HighlightOffOutlined';
 import { MA1_table_info } from "../../MockData/tables";
 import { fetchTenantList } from "../../Store/Tenants/actionCreator";
-import { getTablesList, getTableData } from "../../Store/Data/actionCreator";
+import { getTablesList, getTableData, postFile } from "../../Store/Data/actionCreator";
 
 export default function Tables(props) {
   const classes = useStyles();
@@ -71,7 +74,12 @@ export default function Tables(props) {
   const [filterItems, setFilterItems] = useState({});
   const [selectedFilterItem, setSelectedFilterItem] = useState("");
   const [selectedColumn, setSelectedColumn] = useState("");
-  const [sortType, setSortType] = useState("")
+  const [sortType, setSortType] = useState("");
+  const [thumbnailFileName, setThumbnailFileName] = useState("");
+  const [hasUpload, setHasUpload] = useState(false);
+  const [fileURL, setFileURL] = useState();
+  const [fileUploadLoader, setFileUploadLoader] = useState('');
+  const [fileUploadSuccess, setFileUploadSuccess] = useState(false)
 
   const handleSearchChange = (event) => {
     setSearchValue(event.target.value);
@@ -83,8 +91,6 @@ export default function Tables(props) {
     setOffset(0);
     fetchTableData(tableCode, 0);
   };
-
-
 
   const [selectedTenantId, setSelectedTenantId] = useState(
     props.history.match.params.tenantId
@@ -150,7 +156,7 @@ export default function Tables(props) {
     setSelectedTenantId(event.target.value);
     fetchTableList();
     setSelectedItem("");
-    setTableData([])
+    setTableData([]);
     setColumnsList([]);
     setLoading(false)
   };
@@ -280,6 +286,8 @@ export default function Tables(props) {
   const successCallBack = (res) => {
     setTableData(res.results.data);
     setLoading(false);
+    setHasUpload(res.results.has_upload || false)
+    setFileURL(res.results.upload_url || '')
     setTotalRecCount(res.results.total_count);
     setColumnsList(res.results.column_list);
   };
@@ -303,7 +311,6 @@ export default function Tables(props) {
   };
 
   const handleFilterChange = (event, item) => {
-
     setSelectedFilterItem(event.target.value, item)
     setFilterItems({ ...filterItems, [item]: event.target.value })
   }
@@ -319,6 +326,37 @@ export default function Tables(props) {
     setSortType(event.target.value);
   }
 
+  const onThumbnailChangeHandler = (event) => {
+    if (
+      event.target.files.length > 0
+    ) {
+      setFileUploadLoader(true);
+      setThumbnailFileName(event.target.files[0].name);
+      let payload = {
+        "apiEP": fileURL,
+        "table_code": tableCode,
+        "file": event.target.files[0],
+        "tenant_id": selectedTenantId
+      }
+      postFile(payload, succCB, failCB);
+    }
+    event.target.value = '';
+  }
+
+  const succCB = (res) => {
+    setFileUploadLoader(false);
+    setFileUploadSuccess(true);
+  }
+
+  const failCB = (err) => {
+    setFileUploadLoader(false);
+    setFileUploadSuccess(false);
+  }
+
+  const onFileToUploadClick = () => {
+    document.getElementById("fileUpload").click();
+  };
+
   useEffect(() => {
     if (sortType) {
       setPage(0);
@@ -330,8 +368,6 @@ export default function Tables(props) {
   const handleSortingColumnChange = (event) => {
     setSelectedColumn(event.target.value);
   };
-
-
 
   const renderTable = () => {
     return (
@@ -346,7 +382,6 @@ export default function Tables(props) {
                   ))}
               </TableRow>
             </TableHead>
-
             <TableBody>
               {tableData.length > 0
                 ? tableData.map((row, index) => (
@@ -508,9 +543,10 @@ export default function Tables(props) {
         </Grid> */}
       </Grid>
       <Divider />
+
       <Grid container spacing={1}>
         <Grid item xs={12} sm={12} md={12} lg={12}>
-          <div style={{ display: 'flex' }}>
+          <div style={{ display: filters.length > 0 ? 'flex' : '' }}>
             {filters.length > 0 && <div style={{ textAlign: 'initial', paddingTop: '1rem' }}>
               Filters:
             </div>}
@@ -538,11 +574,28 @@ export default function Tables(props) {
                       </FormControl>
                     </Grid>
                   ))}
-                </Grid> : <div style={{ textAlign: 'initial', padding: '1rem' }}>No filters available for current selection.</div>}
+                </Grid> : <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ textAlign: 'initial', padding: '1rem' }}>No filters available for current selection.</div>
+                  <div style={{ justifyContent: 'flex-end', display: 'flex', margin: '0.5rem' }}>
+                    {hasUpload && <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={fileUploadLoader}
+                      className={classes.uploadBtn}
+                      startIcon={<CloudUploadIcon />}
+                      onClick={() => {
+                        onFileToUploadClick();
+                      }}
+                    >
+                      Upload File
+        </Button>}
+                    {fileUploadLoader ? <CircularProgress style={{ margin: '0.5rem' }} size={20} /> : <div style={{ color: 'blue', margin: '0.5rem' }}> {thumbnailFileName}</div>}
+                    {fileUploadSuccess && fileUploadLoader !== '' ? <CheckCircleOutlineOutlinedIcon className={classes.validIcon} /> : fileUploadLoader !== '' && fileUploadLoader !== true ? <HighlightOffOutlinedIcon className={classes.invalidIcon} /> : ''}
+                    <Input accept="image/*" capture type="file" style={{ display: "none" }} id="fileUpload" onChange={onThumbnailChangeHandler} />
+
+                  </div>   </div>}
             </React.Fragment>
           </div>
-
-
         </Grid>
       </Grid>
       <Divider />
@@ -593,7 +646,7 @@ export default function Tables(props) {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </div >
   );
 }
 
@@ -629,4 +682,12 @@ const useStyles = makeStyles((theme) => ({
   sortLabel: {
     fontSize: "12px"
   },
+  validIcon: {
+    margin: '0.5rem',
+    color: 'green'
+  },
+  invalidIcon: {
+    color: 'red',
+    margin: '0.5rem',
+  }
 }));

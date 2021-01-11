@@ -4,7 +4,6 @@ import { getEnv } from '../Helpers/basics';
 
 
 const apiDomain = (env) => {
-  // console.log("env", env)
   switch (env) {
     case "prod":
       return "https://api.myathina.com/";
