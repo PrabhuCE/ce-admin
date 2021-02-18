@@ -10,6 +10,7 @@ export class UploadAdapter {
         return this.loader.file.then((file) => {
             const data = new FormData()
             data.append("file", file)
+            data.append("is_public", true)
             const genericError = `Couldn't upload file: ${file.name}.`
             return axios({
                 data,

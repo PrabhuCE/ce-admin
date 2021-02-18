@@ -112,13 +112,13 @@ function Subscribers(props) {
                     </Grid>
                 </Hidden>
                 <Grid item xs={12} sm={12} md={6} lg={6}>
-                    <div className={classes.logoutBtnCtr} >
+                    {subscribersList.length > 0 && <div className={classes.logoutBtnCtr} >
                         <Button variant="contained" color="primary" className={classes.logoutBtn} >
                             <CSVLink data={subscribersList} headers={headers}>
                                 <div style={{ color: '#fff' }}> Download As CSV</div>
                             </CSVLink>
                         </Button>
-                    </div>
+                    </div>}
                     <TableContainer component={Paper}>
                         <Table className={classes.table} aria-label="simple table">
                             <TableHead>
