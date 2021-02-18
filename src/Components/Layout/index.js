@@ -1,6 +1,6 @@
 import React, { Component, useEffect } from "react";
 import { connect } from 'react-redux';
-import { PrivateRoute, BlogPrivateRoute } from '../../router';
+import { PrivateRoute, BlogPrivateRoute, BillingPrivateRoute } from '../../router';
 import Login from "../UserAuth/login";
 import AppList from "../Apps";
 import Try from "./try";
@@ -11,6 +11,8 @@ import BlogLogin from "../UserAuth/blogLogin";
 import Blog from "../Blog";
 import BlogCreate from '../Blog/createNew';
 import BlogConfig from '../Blog/blogConfig';
+import Subscribers from '../Blog/subscriber';
+import Billing from '../Billing';
 import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import AlertMsg from '../Shared/alertMessage';
 
@@ -32,6 +34,7 @@ function Layout(props) {
         />
         <BlogPrivateRoute path="/createblog" history={props.history} component={BlogCreate} />
         <BlogPrivateRoute path="/blogconfig" history={props.history} component={BlogConfig} />
+        <BlogPrivateRoute path="/subscribers" history={props.history} component={Subscribers} />
         <Route path="/apps" history={props.history} component={AppList} />
         <PrivateRoute
           path="/:tenantId/tables"
@@ -42,6 +45,11 @@ function Layout(props) {
           path="/:tenantId/home"
           history={props.history}
           component={Home}
+        />
+        <BillingPrivateRoute
+          path="/billing"
+          history={props.history}
+          component={Billing}
         />
         <Route path="/try" history={props.history} component={Try} />
       </Switch>

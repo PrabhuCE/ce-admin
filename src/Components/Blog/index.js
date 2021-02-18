@@ -54,6 +54,9 @@ function Blogs(props) {
         props.history.push('/bloglogin')
     }
 
+    const handleBlogSubscribers = () => {
+        props.history.push('/subscribers')
+    }
 
     return (
         <React.Fragment>
@@ -61,9 +64,7 @@ function Blogs(props) {
             <div style={{ marginTop: '5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                     {SimpleBreadcrumbs()}
-
-                    <div style={{ justifyContent: 'flex-end', marginRight: '2rem' }}> <Button variant="contained" color="primary" className={classes.logoutBtn} onClick={() => { handleBlogLogout() }}>Logout</Button></div>
-
+                    <div style={{ justifyContent: 'flex-end', marginRight: '2rem' }}> <Button variant="contained" color="primary" className={classes.logoutBtn} onClick={() => { handleBlogSubscribers() }}>Subscribers</Button> <Button variant="contained" color="primary" className={classes.logoutBtn} onClick={() => { handleBlogLogout() }}>Logout</Button></div>
                 </div>
                 <BlogList history={props.history} />
             </div>

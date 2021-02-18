@@ -340,7 +340,8 @@ function BlogConfig(props) {
                                             </Table>
                                         </TableContainer>
                                     </div>
-                                    : <CatDetails />
+                                    :
+                                    <CatDetails />
                             }
                         </Paper>
                     </Grid>

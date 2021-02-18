@@ -21,3 +21,12 @@ export const BlogPrivateRoute = ({ component: Component, ...rest }) => (
             : <Redirect to='/bloglogin' />
     )} />
 )
+
+export const BillingPrivateRoute = ({ component: Component, ...rest }) => (
+    <Route {...rest} render={(props) => (
+        getBlogLoggedInStatus() === true
+            ? <Component {...props} />
+            : <Component {...props} />
+        // <Redirect to='/tenantLogin' />
+    )} />
+)

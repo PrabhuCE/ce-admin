@@ -82,5 +82,6 @@ export const apiConfig = {
     blogListing: `${base_domain}blogs/blog/`,
     editBlog: `${base_domain}blogs/blog/`,
     validateSlug: `${base_domain}blogs/slug_unique_check/`,
+    getSubscribers: `${base_domain}blogs/email_subscriber/`
   }
 };

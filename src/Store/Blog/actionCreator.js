@@ -940,6 +940,15 @@ export const updateBlog = (id, payload, existingList) => {
     };
 }
 
+export const fetchSubscribers = (appId, successCB, failureCB) => {
+    let url = apiConfig.blog.getSubscribers + `${appId}/`;
+    axios.get(url).then((response) => {
+        successCB(response.data)
+    }).catch((error) => {
+        failureCB(error)
+    })
+}
+
 
 export const blogListData1 = {
     id: 3,
