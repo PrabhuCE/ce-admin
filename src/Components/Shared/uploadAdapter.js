@@ -8,6 +8,7 @@ export class UploadAdapter {
 
     async upload() {
         return this.loader.file.then((file) => {
+            let token = localStorage.getItem("blog_token");
             const data = new FormData()
             data.append("file", file)
             data.append("is_public", true)
@@ -18,7 +19,7 @@ export class UploadAdapter {
                 url: apiConfig.blog.contImg,
                 headers: {
                     "Content-Type": "multipart/form-data",
-                    "Authorization": "Token 7bc36ea1f200056971be8d776c8602e31dcb7e05",
+                    "Authorization": `Token ${token}`,
                 },
                 onUploadProgress: (progressEvent) => {
                     this.loader.uploadTotal = progressEvent.total
