@@ -50,13 +50,13 @@ export default function Header(props) {
                         </div>
                         :
                         <Grid container spacing={2}>
-                            <Grid item xs={5} sm={5} md={3} lg={3}>
+                            <Grid item xs={11} sm={6} md={4} lg={4}>
                                 <div style={{ margin: '0.3rem', textAlign: 'start', display: 'flex' }}>
                                     <img style={style.logoImg} src={Logo} alt="Myathina Logo" />
                                     <div className={classes.title}>Continual Engine - Admin</div>
                                 </div>
                             </Grid>
-                            <Grid item xs={2} sm={2} md={9} lg={9}>
+                            <Grid item xs={1} sm={6} md={8} lg={8}>
                                 {getLoggedInStatus() && <div className={classes.sectionDesktop}>
                                     <div style={{ display: "flex" }}>
                                         <React.Fragment>

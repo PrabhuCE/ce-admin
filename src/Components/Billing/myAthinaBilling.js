@@ -15,14 +15,20 @@ import DashboardIcon from "@material-ui/icons/Dashboard";
 import TableChartIcon from "@material-ui/icons/TableChart";
 import EqualizerIcon from "@material-ui/icons/Equalizer";
 import { fetchTenantList } from "../../Store/Tenants/actionCreator";
+import Storage from './storage';
+import { BorderAll } from "@material-ui/icons";
+
 
 export default function MyAthinaBilling(props) {
     const classes = useStyles();
     const [tenants, setTenants] = useState([]);
     const [selectedTenantId, setSelectedTenantId] = useState("");
+    const [selectedTenantInfo, setSelectedTenantInfo] = useState({});
     const [selectedMenu, setSelectedMenu] = useState("Dashboard");
 
     const handleChange = (event) => {
+        let tenantInfo = tenants.find(item => item.tenant_id == event.target.value);
+        setSelectedTenantInfo(tenantInfo);
         setSelectedTenantId(event.target.value);
     };
 
@@ -35,9 +41,23 @@ export default function MyAthinaBilling(props) {
 
     const successTenantsCallBack = (res) => {
         setTenants(res.results);
+        setSelectedTenantInfo(res.results[0]);
+        setSelectedTenantId(res.results[0].tenant_id);
     };
 
-    const failureTenantsCallBack = (error) => { };
+    const failureTenantsCallBack = (error) => {
+
+    };
+
+    const renderContentData = () => {
+        switch (selectedMenu) {
+            case "Storage":
+                return <Storage tenant={selectedTenantInfo} />;
+                break;
+            default:
+                return <Storage tenant={selectedTenantInfo} />
+        }
+    }
 
     return (
         <React.Fragment>
@@ -47,7 +67,7 @@ export default function MyAthinaBilling(props) {
                         <FormControl variant="outlined" className={classes.formControl}>
                             <InputLabel id="demo-simple-select-outlined-label">
                                 Tenant
-                        </InputLabel>
+                            </InputLabel>
                             <Select
                                 labelId="demo-simple-select-outlined-label"
                                 id="demo-simple-select-outlined"
@@ -78,12 +98,12 @@ export default function MyAthinaBilling(props) {
                 </Grid>
             </Grid>
             <Divider />
-            <Grid container spacing={2} style={{ marginTop: "2rem" }}>
+            <Grid container spacing={2} style={{ marginTop: "0.5rem" }}>
                 <Grid item xs={12} sm={12} md={3} lg={2}>
                     <List
                         component="nav"
                         aria-labelledby="nested-list-subheader"
-                        className={classes.root}
+                        className={classes.listCtr}
                     >
                         <ListItem
                             button
@@ -121,7 +141,7 @@ export default function MyAthinaBilling(props) {
                     </List>
                 </Grid>
                 <Grid item xs={12} sm={12} md={9} lg={10}>
-
+                    {renderContentData()}
                 </Grid>
             </Grid>
         </React.Fragment>
@@ -151,5 +171,8 @@ const useStyles = makeStyles((theme) => ({
     formControl: {
         minWidth: 250,
     },
+    listCtr: {
+        borderRight: '2px solid #999'
+    }
 
 }));

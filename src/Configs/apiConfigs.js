@@ -82,5 +82,8 @@ export const apiConfig = {
     editBlog: `${base_domain}blogs/blog/`,
     validateSlug: `${base_domain}blogs/slug_unique_check/`,
     getSubscribers: `${base_domain}blogs/email_subscriber/`
+  },
+  billing: {
+    getStorageData: `${base_domain}billing/storage/overview`,
   }
 };
